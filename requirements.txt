@@ -6,6 +6,7 @@ environs==8.0.0
 fastapi==0.61.1
 h11==0.10.0
 iso8601==0.1.13
+loguru==0.5.3
 marshmallow==3.8.0
 pydantic==1.6.1
 PyPika==0.42.1

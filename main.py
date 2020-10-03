@@ -4,7 +4,8 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from tortoise.contrib.fastapi import register_tortoise
 
-from config.settings import TORTOISE_CONFIG
+from core.settings import TORTOISE_CONFIG
+from core.logger import project_logger
 
 app = FastAPI()
 
@@ -19,6 +20,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 @app.get('/')
 async def main():
+    project_logger.info("Something very important")
     return {'message': 'Hello World!'}
 
 

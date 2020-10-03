@@ -5,6 +5,9 @@ env = Env()
 env.read_env()
 
 
+PROJECT_LOG_PATH = env.path('PROJECT_LOG_PATH')
+LOGS_ROTATION = '500 MB'
+
 TORTOISE_CONFIG = {
     'connections': {
         # Dict format for connection
