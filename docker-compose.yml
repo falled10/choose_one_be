@@ -1,0 +1,22 @@
+version: "3"
+
+services:
+  api:
+    container_name: api
+    build:
+      context: .
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/usr/src/app
+    env_file: .env
+    depends_on:
+      - db
+  db:
+    container_name: db
+    image: postgres:latest
+    env_file: .env
+    volumes:
+      - ./.data/postgres:/var/lib/postgresql/data
+    ports:
+      - 5433:5432
