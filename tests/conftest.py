@@ -1,6 +1,7 @@
 import pytest
 
 from typing import Generator
+from werkzeug.security import generate_password_hash
 
 from tortoise.contrib.fastapi import register_tortoise
 from tortoise.contrib.test import initializer, finalizer
@@ -31,5 +32,12 @@ def client() -> Generator:
 
 @pytest.fixture()
 async def user():
-    yield await User.create(username='test_user',
-                            email='test@mail.com', password='testpass123')
+    user = await User.create(username='test_user', email='test@mail.com',
+                             password=generate_password_hash('testpass123', method='sha256'))
+    yield user
+
+
+@pytest.fixture()
+async def active_user():
+    yield await User.create(username='test_user', is_active=True, email='test@mail.com',
+                            password=generate_password_hash('testpass123', method='sha256'))
