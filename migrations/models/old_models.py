@@ -13,4 +13,17 @@ class User(models.Model):
     created_at = fields.DatetimeField(auto_now_add=True)
 
     class PydanticMeta:
-        exclude = ('created_at',)
+        exclude = ["id", "created_at"]
+
+from tortoise import Model, fields
+
+MAX_VERSION_LENGTH = 255
+
+
+class Aerich(Model):
+    version = fields.CharField(max_length=MAX_VERSION_LENGTH)
+    app = fields.CharField(max_length=20)
+
+    class Meta:
+        ordering = ["-id"]
+
