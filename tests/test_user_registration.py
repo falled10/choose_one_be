@@ -40,7 +40,7 @@ def test_user_registration_with_already_existed_email(mocker, client, event_loop
         'email': 'test@mail.com',
         'password': 'testpass123'
     }
-    resp1 = client.post('/api/auth/register', json=data)
+    client.post('/api/auth/register', json=data)
     data['username'] = 'another_user'
     resp = client.post('/api/auth/register', json=data)
     assert resp.status_code == 400
@@ -66,3 +66,9 @@ def test_user_registration_with_already_existed_username(mocker, client):
 async def test_validation_raise_error_that_email_exists(user):
     with pytest.raises(CustomValidationError):
         await validate_unique_email(user.email)
+
+
+@pytest.mark.asyncio
+async def test_validation_raise_error_that_username_exists(user):
+    with pytest.raises(CustomValidationError):
+        await validate_unique_username(user.username)

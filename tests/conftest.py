@@ -21,8 +21,7 @@ def initialize_tests(request):
         add_exception_handlers=True,
     )
     initializer(TORTOISE_MODELS_LIST)
-    yield
-    finalizer()
+    request.addfinalizer(finalizer)
 
 
 @pytest.fixture(scope="session")
