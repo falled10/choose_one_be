@@ -9,6 +9,8 @@ PROJECT_LOG_PATH = env.path('PROJECT_LOG_PATH')
 CELERY_LOG_PATH = env.path('CELERY_LOG_PATH')
 LOGS_ROTATION = '500 MB'
 
+TORTOISE_MODELS_LIST = ['api.users.models', 'aerich.models']
+
 TORTOISE_CONFIG = {
     'connections': {
         # Dict format for connection
@@ -25,7 +27,7 @@ TORTOISE_CONFIG = {
     },
     'apps': {
         'models': {
-            'models': ['api.users.models', 'aerich.models'],
+            'models': TORTOISE_MODELS_LIST,
             # If no default_connection specified, defaults to 'default'
             'default_connection': 'default',
         }

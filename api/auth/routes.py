@@ -8,7 +8,7 @@ from api.auth.schemas import ActivateUserSchema
 router = APIRouter()
 
 
-@router.post('/register', response_model=ResponseUserSchema)
+@router.post('/register', response_model=ResponseUserSchema, status_code=201)
 async def register(user: UserSchema):
     return await create_new_user(user)
 
