@@ -14,7 +14,7 @@ class User(models.Model):
     created_at = fields.DatetimeField(auto_now_add=True)
 
     class PydanticMeta:
-        exclude = ('created_at',)
+        exclude = ('is_active', 'created_at',)
 
     class Meta:
         table = 'users'

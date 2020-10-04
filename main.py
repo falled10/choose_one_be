@@ -22,7 +22,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 
 @app.exception_handler(CustomValidationError)
-async def validation_exception_handler(request: Request, exc: CustomValidationError):
+async def validation_exception_handler(request: Request, exc: CustomValidationError):  # noqa
     return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,
         content=jsonable_encoder({exc.field: exc.message})
