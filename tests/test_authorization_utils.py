@@ -80,7 +80,7 @@ def test_get_data_from_expired_token():
 
 def test_get_data_from_wrong_token():
     with pytest.raises(HTTPException):
-        token_string = f"JWT something"
+        token_string = "JWT something"
         get_data_form_token(token_string)
 
 
