@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.2.0 - UNRELEASED
+## v0.2.0 - 06.10.2020
 
 ### Changed
 
