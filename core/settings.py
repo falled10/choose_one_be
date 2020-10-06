@@ -5,8 +5,8 @@ env = Env()
 env.read_env()
 
 
-PROJECT_LOG_PATH = env.path('PROJECT_LOG_PATH')
-CELERY_LOG_PATH = env.path('CELERY_LOG_PATH')
+PROJECT_LOG_PATH = env.path('PROJECT_LOG_PATH', '.data/project.log')
+CELERY_LOG_PATH = env.path('CELERY_LOG_PATH', '.data/celery.log')
 LOGS_ROTATION = '500 MB'
 
 TORTOISE_MODELS_LIST = ['api.users.models', 'aerich.models']
@@ -40,9 +40,9 @@ CELERY_TASK_DEFAULT_QUEUE = "fastapi"
 
 CELERY_TASK_SOFT_TIME_LIMIT = env.int('TASK_SOFT_TIME_LIMIT_SEC', 40)
 
-MAILJET_PUBLIC_KEY = env.str('MAILJET_PUBLIC_KEY')
-MAILJET_SECRET_KEY = env.str('MAILJET_SECRET_KEY')
-MAILJET_USER = env.str('MAILJET_USER')
+MAILJET_PUBLIC_KEY = env.str('MAILJET_PUBLIC_KEY', '')
+MAILJET_SECRET_KEY = env.str('MAILJET_SECRET_KEY', '')
+MAILJET_USER = env.str('MAILJET_USER', '')
 
 
 SECRET_KEY = env.str('SECRET_KEY')
