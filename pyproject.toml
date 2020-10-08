@@ -27,6 +27,7 @@ asyncpg = "^0.21.0"
 aerich = "^0.2.5"
 asynctest = "^0.13.0"
 pytest-mock = "^3.3.1"
+python-slugify = "^4.0.1"
 
 [tool.poetry.dev-dependencies]
 

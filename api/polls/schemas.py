@@ -8,3 +8,4 @@ BasePollSchema = pydantic_model_creator(Poll, name="PollSchema", exclude_readonl
 
 class ResponsePollSchema(BasePollSchema):
     id: int
+    slug: str
