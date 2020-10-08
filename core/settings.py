@@ -9,7 +9,7 @@ PROJECT_LOG_PATH = env.path('PROJECT_LOG_PATH', '.data/project.log')
 CELERY_LOG_PATH = env.path('CELERY_LOG_PATH', '.data/celery.log')
 LOGS_ROTATION = '500 MB'
 
-TORTOISE_MODELS_LIST = ['api.users.models', 'aerich.models']
+TORTOISE_MODELS_LIST = ['api.users.models', 'api.polls.models', 'aerich.models']
 
 TORTOISE_CONFIG = {
     'connections': {

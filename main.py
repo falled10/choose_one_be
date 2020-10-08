@@ -7,10 +7,12 @@ from tortoise.contrib.fastapi import register_tortoise
 from core.settings import TORTOISE_CONFIG
 from core.exceptions import CustomValidationError
 from api.auth.routes import router as auth_router
+from api.polls.routes import router as poll_router
 
 app = FastAPI()
 
-app.include_router(auth_router, prefix="/api/auth", tags=["authorization"])
+app.include_router(auth_router, prefix="/api/auth", tags=["Authorization"])
+app.include_router(poll_router, prefix="/api/polls", tags=["Polls"])
 
 
 @app.exception_handler(RequestValidationError)
