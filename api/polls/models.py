@@ -18,8 +18,13 @@ class Poll(models.Model):
         self.slug = slugify(self.title)
         return super().save(*args, **kwargs)
 
+    def update_from_dict(self, data: dict):
+        if data.get('title'):
+            self.slug = slugify(data['title'])
+        return super().update_from_dict(data)
+
     class Meta:
         table = 'polls'
 
     class PydanticMeta:
-        exclude = ('slug', 'creator', 'created_at',)
+        exclude = ('slug', 'creator', 'created_at', 'places_number')
