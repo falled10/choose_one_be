@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.3.0 - UNRELEASED
+
+### Changed
+
+* Migrations, because of updating `aerich` package
+
+### Added
+
+* Polls package with polls model and endpoints
+
 ## v0.2.0 - 06.10.2020
 
 ### Changed
