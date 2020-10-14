@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 
 from api.polls.schemas import ResponsePollSchema, CreatePollSchema, PatchUpdatePollSchema
 from api.polls.services import create_new_poll, update_poll
-from api.auth.dependencies import jwt_required
+from api.auth.dependencies import jwt_required, get_db
 from api.users.models import User
 
 
@@ -10,15 +11,17 @@ router = APIRouter()
 
 
 @router.post("", response_model=ResponsePollSchema)
-async def create_new_poll_route(poll: CreatePollSchema, user: User = Depends(jwt_required)):
+async def create_new_poll_route(poll: CreatePollSchema, user: User = Depends(jwt_required),
+                                db: Session = Depends(get_db)):
     """Create new poll
     """
-    return await create_new_poll(poll, user)
+    return create_new_poll(poll, user, db)
 
 
 @router.patch("/{poll_id}", response_model=ResponsePollSchema)
-async def update_poll_route(poll_id: int, poll: PatchUpdatePollSchema, user: User = Depends(jwt_required)):
+async def update_poll_route(poll_id: int, poll: PatchUpdatePollSchema, user: User = Depends(jwt_required),
+                            db: Session = Depends(get_db)):
     """Update your poll
     """
-    return await update_poll(poll_id, user, poll)
+    return update_poll(poll_id, user, poll, db)
 

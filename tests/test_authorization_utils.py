@@ -46,16 +46,14 @@ def test_decode_expired_token():
         _decode_token(token)
 
 
-@pytest.mark.asyncio
-async def test_get_current_user(active_user):
-    obj = await get_current_user({'user_id': active_user.id, 'type': 'access'})
+def test_get_current_user(active_user):
+    obj = get_current_user({'user_id': active_user.id, 'type': 'access'})
     assert obj.email == active_user.email
 
 
-@pytest.mark.asyncio
-async def test_get_non_existed_user():
+def test_get_non_existed_user():
     with pytest.raises(HTTPException):
-        await get_current_user({'user_id': 123555})
+        get_current_user({'user_id': 123555})
 
 
 def test_get_data_from_token():
@@ -94,108 +92,94 @@ def test_get_data_from_token_with_wrong_prefix():
         get_data_form_token(token_string)
 
 
-@pytest.mark.asyncio
-async def test_get_access_token(active_user):
+def test_get_access_token(active_user):
     token = get_access_token(active_user)
     data = jwt.decode(token, SECRET_KEY, algorithms=[JWT_ALGORITHM])
     assert data['user_id'] == active_user.id
     assert data['type'] == 'access'
 
 
-@pytest.mark.asyncio
-async def test_get_refresh_token(active_user):
+def test_get_refresh_token(active_user):
     token = get_refresh_token(active_user)
     data = jwt.decode(token, SECRET_KEY, algorithms=[JWT_ALGORITHM])
     assert data['user_id'] == active_user.id
     assert data['type'] == 'refresh'
 
 
-@pytest.mark.asyncio
-async def test_refresh_tokens(active_user):
+def test_refresh_tokens(active_user, db):
     token = get_refresh_token(active_user)
-    data = await refresh_tokens(token)
+    data = refresh_tokens(token, db)
     assert 'access' in data
     assert 'refresh' in data
     access_data = jwt.decode(data['access'], SECRET_KEY, algorithms=[JWT_ALGORITHM])
     assert access_data['user_id'] == active_user.id
 
 
-@pytest.mark.asyncio
-async def test_refresh_tokens_with_access_token(active_user):
+def test_refresh_tokens_with_access_token(active_user, db):
     token = get_access_token(active_user)
     with pytest.raises(HTTPException):
-        await refresh_tokens(token)
+        refresh_tokens(token, db)
 
 
-@pytest.mark.asyncio
-async def test_refresh_tokens_with_wrong_woken():
+def test_refresh_tokens_with_wrong_woken(db):
     with pytest.raises(HTTPException):
-        await refresh_tokens('asdfasdfadsf')
+        refresh_tokens('asdfasdfadsf', db)
 
 
-@pytest.mark.asyncio
-async def test_refresh_tokens_user_is_unactive(user):
+def test_refresh_tokens_user_is_unactive(user, db):
     token = get_refresh_token(user)
     with pytest.raises(HTTPException):
-        await refresh_tokens(token)
+        refresh_tokens(token, db)
 
 
-@pytest.mark.asyncio
-async def test_refresh_tokens_token_is_expired(active_user):
+def test_refresh_tokens_token_is_expired(active_user, db):
     token = jwt.encode({'type': 'refresh', 'user_id': active_user.id,
                         'exp': datetime.utcnow() - timedelta(minutes=1)},
                        SECRET_KEY, algorithm=JWT_ALGORITHM)
     with pytest.raises(HTTPException):
-        await refresh_tokens(token)
+        refresh_tokens(token, db)
 
 
-@pytest.mark.asyncio
-async def test_authorize_user(active_user):
-    data = await authorize_user(UserLoginSchema(email=active_user.email,
-                                                password='testpass123'))
+def test_authorize_user(active_user, db):
+    data = authorize_user(UserLoginSchema(email=active_user.email,
+                                          password='testpass123'), db)
     assert 'access' in data
     assert 'refresh' in data
     access_data = jwt.decode(data['access'], SECRET_KEY, algorithms=[JWT_ALGORITHM])
     assert access_data['user_id'] == active_user.id
 
 
-@pytest.mark.asyncio
-async def test_authorize_user_is_inactive(user):
+def test_authorize_user_is_inactive(user, db):
     with pytest.raises(HTTPException):
-        await authorize_user(UserLoginSchema(email=user.email,
-                                             password='testpass123'))
+        authorize_user(UserLoginSchema(email=user.email,
+                                       password='testpass123'), db)
 
 
-@pytest.mark.asyncio
-async def test_authorize_user_invalid_creds():
+def test_authorize_user_invalid_creds(db):
     with pytest.raises(HTTPException):
-        await authorize_user(UserLoginSchema(email='random@mail.com',
-                                             password='12321313'))
+        authorize_user(UserLoginSchema(email='random@mail.com',
+                                       password='12321313'), db)
 
 
-@pytest.mark.asyncio
-async def test_jwt_required_dependency(active_user):
+def test_jwt_required_dependency(active_user):
     token = get_access_token(active_user)
     token = f'JWT {token}'
-    user = await jwt_required(token)
+    user = jwt_required(token)
     assert user.id == active_user.id
 
 
-@pytest.mark.asyncio
-async def test_jwt_required_without_token():
+def test_jwt_required_without_token():
     with pytest.raises(HTTPException):
-        await jwt_required(None)
+        jwt_required(None)
 
 
-@pytest.mark.asyncio
-async def test_jwt_required_refresh_token(active_user):
+def test_jwt_required_refresh_token(active_user):
     token = get_refresh_token(active_user)
     token = f'JWT {token}'
     with pytest.raises(HTTPException):
-        await jwt_required(token)
+        jwt_required(token)
 
 
-@pytest.mark.asyncio
-async def test_jwt_required_invalid_token():
+def test_jwt_required_invalid_token():
     with pytest.raises(HTTPException):
-        await jwt_required('asdfadsfadsf')
+        jwt_required('asdfadsfadsf')

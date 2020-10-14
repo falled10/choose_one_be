@@ -2,9 +2,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from tortoise.contrib.fastapi import register_tortoise
 
-from core.settings import TORTOISE_CONFIG
 from core.exceptions import CustomValidationError
 from api.auth.routes import router as auth_router
 from api.polls.routes import router as poll_router
@@ -34,9 +32,3 @@ async def validation_exception_handler(request: Request, exc: CustomValidationEr
 @app.get('/')
 async def main():
     return {'message': 'Hello World!'}
-
-
-register_tortoise(
-    app,
-    config=TORTOISE_CONFIG
-)

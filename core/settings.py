@@ -9,31 +9,13 @@ PROJECT_LOG_PATH = env.path('PROJECT_LOG_PATH', '.data/project.log')
 CELERY_LOG_PATH = env.path('CELERY_LOG_PATH', '.data/celery.log')
 LOGS_ROTATION = '500 MB'
 
-TORTOISE_MODELS_LIST = ['api.users.models', 'api.polls.models', 'aerich.models']
+USER = env.str('POSTGRES_USER')
+PASSWORD = env.str('POSTGRES_PASSWORD')
+HOST = env.str('DB_HOST')
+PORT = env.str('DB_PORT')
+DB = env.str('POSTGRES_DB')
 
-TORTOISE_CONFIG = {
-    'connections': {
-        # Dict format for connection
-        'default': {
-            'engine': 'tortoise.backends.asyncpg',
-            'credentials': {
-                'host': env.str('DB_HOST'),
-                'port': env.str('DB_PORT'),
-                'user': env.str('POSTGRES_USER'),
-                'password': env.str('POSTGRES_PASSWORD'),
-                'database': env.str('POSTGRES_DB'),
-            }
-        },
-    },
-    'apps': {
-        'models': {
-            'models': TORTOISE_MODELS_LIST,
-            # If no default_connection specified, defaults to 'default'
-            'default_connection': 'default',
-        }
-    }
-}
-
+DATABASE_URI = f'postgresql://{USER}:{PASSWORD}@{HOST}:{PORT}/{DB}'
 
 CELERY_BROKER_URL = env.str('BROKER_URL', '')
 CELERY_TASK_DEFAULT_QUEUE = "fastapi"

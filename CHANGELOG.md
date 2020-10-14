@@ -4,7 +4,7 @@
 
 ### Changed
 
-* Migrations, because of updating `aerich` package
+* Orm and migrations to `sqlalchemy` and `alembic`
 
 ### Added
 

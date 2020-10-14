@@ -15,22 +15,20 @@ def test_generate_activation_token(user):
     assert data['user_email'] == user.email
 
 
-@pytest.mark.asyncio
-async def test_activate_inactive_user(user):
+def test_activate_inactive_user(user, db):
     token = generate_activation_token(user.email)
     assert not user.is_active
-    await activate_user(token)
-    user = await User.get(id=user.id)
+    activate_user(token, db)
+    user = db.query(User).get(user.id)
     assert user.is_active
 
 
-@pytest.mark.asyncio
-async def test_activate_inactive_user_invalid_token():
+def test_activate_inactive_user_invalid_token(db):
     with pytest.raises(CustomValidationError):
-        await activate_user('asdfadsfasdf')
+        activate_user('asdfadsfasdf', db)
 
 
-def test_activate_user_endpoint(user, client, event_loop):
+def test_activate_user_endpoint(user, client, db):
     token = generate_activation_token(user.email)
     data = {
         'token': token
@@ -38,13 +36,13 @@ def test_activate_user_endpoint(user, client, event_loop):
     assert not user.is_active
     resp = client.post('/api/auth/activate', json=data)
     assert resp.status_code == 204
-    user = event_loop.run_until_complete(User.get(id=user.id))
+    db.refresh(user)
     assert user.is_active
 
 
-def test_activate_already_active_user(user, client, event_loop):
+def test_activate_already_active_user(user, client, db):
     user.is_active = True
-    event_loop.run_until_complete(user.save())
+    db.commit()
     token = generate_activation_token(user.email)
     data = {
         'token': token
