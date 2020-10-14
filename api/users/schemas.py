@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, validator, constr
+from pydantic import EmailStr, validator, constr
 
 from core.database import SessionLocal
 from api.users.models import User

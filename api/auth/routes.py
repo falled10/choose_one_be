@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from api.auth.authorization import authorize_user, refresh_tokens
 from api.users.schemas import UserSchema, UserRegistrationSchema
-from api.auth.service import create_new_user, activate_user
+from api.auth.services import create_new_user, activate_user
 from api.auth.dependencies import get_db
 from api.auth.schemas import ActivateUserSchema, TokensSchema, UserLoginSchema, RefreshTokenSchema
 

@@ -3,7 +3,7 @@ import jwt
 
 
 from api.auth.utils import generate_activation_token
-from api.auth.service import activate_user
+from api.auth.services import activate_user
 from api.users.models import User
 from core.exceptions import CustomValidationError
 from core.settings import SECRET_KEY, JWT_ALGORITHM

@@ -56,4 +56,3 @@ def test_user_registration_with_already_existed_username(mocker, client):
     resp = client.post('/api/auth/register', json=data)
     assert resp.status_code == 400
     assert 'username' in resp.json()
-

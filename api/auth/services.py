@@ -24,7 +24,6 @@ def activate_user(token: str, db: Session):
     if not obj:
         raise CustomValidationError(field='token', message=error_text)
     obj.is_active = True
-    print(obj.id)
     db.commit()
 
 

@@ -14,4 +14,4 @@ class User(Base):
     email = Column(String, unique=True)
     password = Column(String)
     created_at = Column(DateTime, default=datetime.utcnow)
-    polls = relationship("Poll")
+    polls = relationship("Poll", back_populates="creator")
