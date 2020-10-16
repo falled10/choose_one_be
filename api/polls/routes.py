@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from api.polls.schemas import ResponsePollSchema, CreatePollSchema, PatchUpdatePollSchema
-from api.polls.services import create_new_poll, update_poll
+from api.polls.services import create_new_poll, update_poll, delete_poll
 from api.auth.dependencies import jwt_required, get_db
 from api.users.models import User
 
@@ -24,3 +24,9 @@ async def update_poll_route(poll_slug: str, poll: PatchUpdatePollSchema, user: U
     """Update your poll
     """
     return update_poll(poll_slug, user, poll, db)
+
+
+@router.delete("/{poll_slug}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_poll_route(poll_slug: str, user: User = Depends(jwt_required), db: Session = Depends(get_db)):
+    delete_poll(poll_slug, user, db)
+    return

@@ -14,7 +14,7 @@ def test_create_new_poll(client, db, token_header):
     resp = client.post('/api/polls', json=data, headers=token_header)
     assert resp.status_code == 201
     assert 'id' in resp.json()
-    assert db.query(db.query(Poll).filter_by(id=resp.json()['id']).exists())
+    assert db.query(Poll).get(resp.json()['id'])
     assert 'slug' in resp.json()
 
 
@@ -94,3 +94,26 @@ def test_update_existed_poll_with_the_same_title(client, user, db, token_header,
     }
     resp = client.patch(f'/api/polls/{another_poll.slug}', json=data, headers=token_header)
     assert resp.status_code == 400
+
+
+def test_delete_existed_poll(client, db, token_header, poll):
+    resp = client.delete(f'api/polls/{poll.slug}', headers=token_header)
+    assert resp.status_code == 204
+    assert not db.query(Poll).filter_by(id=poll.id).first()
+
+
+def test_delete_not_existed_poll(client, token_header):
+    resp = client.delete('api/polls/asdfsdf', headers=token_header)
+    assert resp.status_code == 404
+
+
+def test_delete_not_your_poll(client, db, token_header, user):
+    data = CreatePollSchema(title='some another title', description='some another description')
+    another_poll = create_new_poll(data, user, db)
+    resp = client.delete(f'api/polls/{another_poll.slug}', headers=token_header)
+    assert resp.status_code == 403
+
+
+def test_delete_poll_when_not_logged_in(client, poll):
+    resp = client.delete(f'api/polls/{poll.slug}')
+    assert resp.status_code == 401
