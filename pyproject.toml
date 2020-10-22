@@ -28,6 +28,7 @@ alembic = "^1.4.3"
 SQLAlchemy-Utils = "^0.36.8"
 psycopg2-binary = "^2.8.6"
 flake8 = "^3.8.4"
+paginate-sqlalchemy = "^0.3.1"
 
 [tool.poetry.dev-dependencies]
 

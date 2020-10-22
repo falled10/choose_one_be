@@ -2,7 +2,7 @@ import pytest
 from fastapi.exceptions import HTTPException
 from slugify import slugify
 
-from api.polls.services import create_new_poll, update_poll, delete_poll, get_single_poll
+from api.polls.services import create_new_poll, update_poll, delete_poll, get_single_poll, get_list_of_polls
 from api.polls.validators import validate_unique_title, validate_is_owner, validate_existed_poll
 from api.polls.models import Poll
 from api.polls.schemas import PatchUpdatePollSchema, CreatePollSchema
@@ -97,3 +97,28 @@ def test_get_single_poll(db, poll):
 def test_get_not_existed_poll(db):
     with pytest.raises(HTTPException):
         get_single_poll('asdjfjasdfl', db)
+
+
+def test_get_list_of_polls(poll, active_user, db):
+    title = 'some other poll'
+    other_poll = Poll(title=title, description="Something about test poll", slug=slugify(title),
+                      creator=active_user)
+    db.add(other_poll)
+    db.commit()
+    db.refresh(other_poll)
+    data = get_list_of_polls(db, '/api/polls', 2, 1)
+    assert data['count'] == 2
+    assert not data['next_page']
+    assert data['result'][0].id == other_poll.id
+    assert data['result'][1].id == poll.id
+
+
+def test_get_list_of_polls_has_next_page(poll, active_user, db):
+    title = 'some other poll'
+    other_poll = Poll(title=title, description="Something about test poll", slug=slugify(title),
+                      creator=active_user)
+    db.add(other_poll)
+    db.commit()
+    data = get_list_of_polls(db, '/api/polls', 1, 1)
+    assert data['count'] == 2
+    assert data['next_page']

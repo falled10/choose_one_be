@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from typing_extensions import Literal
 from pydantic import validator
 
@@ -40,3 +40,10 @@ class PatchUpdatePollSchema(CreatePollSchema):
     title: Optional[str] = None
     description: Optional[str] = None
     media_type: Optional[str] = None
+
+
+class ListPollResponseSchema(CamelModel):
+    next_page: Optional[str] = None
+    previous_page: Optional[str] = None
+    result: List[ResponsePollSchema]
+    count: int

@@ -134,3 +134,21 @@ def test_get_single_poll_when_logged_out(client, poll):
 def test_get_non_existed_poll(client):
     resp = client.get('api/polls/asdfadsf')
     assert resp.status_code == 404
+
+
+def test_get_list_of_polls(poll, client):
+    resp = client.get('api/polls')
+    assert resp.status_code == 200
+    assert resp.json()['count'] == 1
+    assert resp.json()['result'][0]['id'] == poll.id
+
+
+def test_get_list_of_polls_without_poll(client):
+    resp = client.get('api/polls')
+    assert resp.json()['count'] == 0
+    assert resp.json()['result'] == []
+
+
+def test_get_list_of_polls_wrong_page_size(poll, client):
+    resp = client.get('api/polls?page_size=0')
+    assert resp.status_code == 400

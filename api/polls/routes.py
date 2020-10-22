@@ -1,8 +1,11 @@
-from fastapi import APIRouter, Depends, status
+from typing import Optional
+
+from fastapi import APIRouter, Depends, status, Request
+from fastapi.params import Query
 from sqlalchemy.orm import Session
 
-from api.polls.schemas import ResponsePollSchema, CreatePollSchema, PatchUpdatePollSchema
-from api.polls.services import create_new_poll, update_poll, delete_poll, get_single_poll
+from api.polls.schemas import ResponsePollSchema, CreatePollSchema, PatchUpdatePollSchema, ListPollResponseSchema
+from api.polls.services import create_new_poll, update_poll, delete_poll, get_single_poll, get_list_of_polls
 from api.auth.dependencies import jwt_required, get_db
 from api.users.models import User
 
@@ -37,3 +40,11 @@ async def delete_poll_route(poll_slug: str, user: User = Depends(jwt_required), 
 async def get_single_poll_endpoint(poll_slug: str, db: Session = Depends(get_db)):
     """Get single poll"""
     return get_single_poll(poll_slug, db)
+
+
+@router.get("", response_model=ListPollResponseSchema)
+async def list_of_poll_route(request: Request, page: int = 1,
+                             page_size: Optional[int] = Query(20, gt=0), db: Session = Depends(get_db)):
+    """Get paginated list of polls
+    """
+    return get_list_of_polls(db, request.url.path, page_size, page)

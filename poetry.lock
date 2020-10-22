@@ -425,6 +425,26 @@ pyparsing = ">=2.0.2"
 six = "*"
 
 [[package]]
+name = "paginate"
+version = "0.5.6"
+description = "Divides large result sets into pages for easier browsing"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
+name = "paginate-sqlalchemy"
+version = "0.3.1"
+description = "Extension to paginate.Page that supports SQLAlchemy queries"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+paginate = ">=0.4"
+sqlalchemy = ">=0.8.3"
+
+[[package]]
 name = "pluggy"
 version = "0.13.1"
 description = "plugin and hook calling mechanisms for python"
@@ -844,7 +864,7 @@ testing = ["pytest (>=3.5,<3.7.3 || >3.7.3)", "pytest-checkdocs (>=1.2.3)", "pyt
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "1bc2e33120d7005f656b7e7523f73ef5767b548233690a3bbe066ebed16f381c"
+content-hash = "b23fdf91195a5283f3748347ff32c317afddbe2b5e59862563a6db02c59c1571"
 
 [metadata.files]
 alembic = [
@@ -1059,6 +1079,13 @@ mccabe = [
 packaging = [
     {file = "packaging-20.4-py2.py3-none-any.whl", hash = "sha256:998416ba6962ae7fbd6596850b80e17859a5753ba17c32284f67bfff33784181"},
     {file = "packaging-20.4.tar.gz", hash = "sha256:4357f74f47b9c12db93624a82154e9b120fa8293699949152b22065d556079f8"},
+]
+paginate = [
+    {file = "paginate-0.5.6.tar.gz", hash = "sha256:5e6007b6a9398177a7e1648d04fdd9f8c9766a1a945bceac82f1929e8c78af2d"},
+]
+paginate-sqlalchemy = [
+    {file = "paginate_sqlalchemy-0.3.1-py3-none-any.whl", hash = "sha256:e022f79ed798e62092a8618c528158ed619a1b604dce43c9dbc5441f5325137e"},
+    {file = "paginate_sqlalchemy-0.3.1.tar.gz", hash = "sha256:9ee349b74a5f2f52455cb1280d0ca24222c8137e638363df5877e6e76c369b5b"},
 ]
 pluggy = [
     {file = "pluggy-0.13.1-py2.py3-none-any.whl", hash = "sha256:966c145cd83c96502c3c3868f50408687b38434af77734af1e9ca461a4081d2d"},

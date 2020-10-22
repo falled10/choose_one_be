@@ -1,3 +1,4 @@
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 from slugify import slugify
 
@@ -5,6 +6,23 @@ from api.polls.schemas import CreatePollSchema, PatchUpdatePollSchema
 from api.polls.models import Poll
 from api.polls.validators import validate_unique_title, validate_is_owner, validate_existed_poll
 from api.users.models import User
+from paginate_sqlalchemy import SqlalchemyOrmPage
+
+
+def get_list_of_polls(db: Session, path: str, page_size, page):
+    """Returns paginated list of polls
+    """
+    query = db.query(Poll).order_by(text('-id'))
+    path = f"{path}?page_size={page_size}&page="
+    page = SqlalchemyOrmPage(query, page=page, items_per_page=page_size)
+    next_page = page.next_page
+    previous_page = page.previous_page
+    return {
+        'next_page': path + str(next_page) if next_page else None,
+        'previous_page': path + str(previous_page) if previous_page else None,
+        'result': page.items,
+        'count': page.item_count
+    }
 
 
 def get_single_poll(poll_slug: str, db: Session) -> Poll:
