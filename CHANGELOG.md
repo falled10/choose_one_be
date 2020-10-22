@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.4.0 - 22.10.2020
+
+### Changed
+
+* Logic for clear database after each test, not it uses transaction rollback
+
 ## v0.3.0 - 22.10.2020
 
 ### Added
