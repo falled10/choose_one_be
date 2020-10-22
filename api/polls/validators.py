@@ -22,5 +22,5 @@ def validate_existed_poll(db: Session, poll_slug):
     poll = db.query(Poll).filter_by(slug=poll_slug).first()
     if not poll:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"Poll with id {poll_slug} does not exist")
+                            detail=f"Poll with slug {poll_slug} does not exist")
     return poll

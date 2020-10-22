@@ -2,7 +2,7 @@ import pytest
 from fastapi.exceptions import HTTPException
 from slugify import slugify
 
-from api.polls.services import create_new_poll, update_poll, delete_poll
+from api.polls.services import create_new_poll, update_poll, delete_poll, get_single_poll
 from api.polls.validators import validate_unique_title, validate_is_owner, validate_existed_poll
 from api.polls.models import Poll
 from api.polls.schemas import PatchUpdatePollSchema, CreatePollSchema
@@ -86,3 +86,14 @@ def test_validate_existed_poll(db, poll):
 def test_validate_not_existed_poll(db):
     with pytest.raises(HTTPException):
         validate_existed_poll(db, 'asdfljadsjfk')
+
+
+def test_get_single_poll(db, poll):
+    existed_poll = get_single_poll(poll.slug, db)
+    assert existed_poll.slug == poll.slug
+    assert existed_poll.id == poll.id
+
+
+def test_get_not_existed_poll(db):
+    with pytest.raises(HTTPException):
+        get_single_poll('asdjfjasdfl', db)

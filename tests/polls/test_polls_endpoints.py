@@ -117,3 +117,20 @@ def test_delete_not_your_poll(client, db, token_header, user):
 def test_delete_poll_when_not_logged_in(client, poll):
     resp = client.delete(f'api/polls/{poll.slug}')
     assert resp.status_code == 401
+
+
+def test_get_single_poll_by_slug(client, poll, token_header):
+    resp = client.get(f'api/polls/{poll.slug}', headers=token_header)
+    assert resp.status_code == 200
+    assert resp.json()['id'] == poll.id
+
+
+def test_get_single_poll_when_logged_out(client, poll):
+    resp = client.get(f'api/polls/{poll.slug}')
+    assert resp.status_code == 200
+    assert resp.json()['id'] == poll.id
+
+
+def test_get_non_existed_poll(client):
+    resp = client.get('api/polls/asdfadsf')
+    assert resp.status_code == 404
