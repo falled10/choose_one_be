@@ -1,5 +1,6 @@
 import pytest
 from slugify import slugify
+from sqlalchemy.exc import ProgrammingError
 
 from werkzeug.security import generate_password_hash
 
@@ -18,24 +19,30 @@ from core.settings import DATABASE_URI
 
 try:
     create_database(engine.url)
-except Exception:
-    print('database exists')
+except ProgrammingError:
+    pass  # database already exists
 
 alembic_config = Config('alembic.ini')
 alembic_config.set_main_option('sqlalchemy.url', DATABASE_URI)
 upgrade(alembic_config, 'head')
 
 
-@pytest.fixture()
+@pytest.fixture(autouse=True)
 def db():
-    try:
-        db = SessionLocal()
-        yield db
-    finally:
-        db.close()
+    connection = engine.connect()
+    transaction = connection.begin()
+
+    SessionLocal.configure(bind=connection)
+    session = SessionLocal()
+
+    yield session
+
+    session.close()
+    transaction.rollback()
+    connection.close()
 
 
-@pytest.yield_fixture(autouse=True)
+@pytest.yield_fixture(autouse=True, scope='session')
 def tables():
     Base.metadata.create_all(engine)
     yield
