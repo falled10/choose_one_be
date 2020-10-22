@@ -2,15 +2,15 @@ from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from tortoise.contrib.fastapi import register_tortoise
 
-from core.settings import TORTOISE_CONFIG
 from core.exceptions import CustomValidationError
 from api.auth.routes import router as auth_router
+from api.polls.routes import router as poll_router
 
 app = FastAPI()
 
-app.include_router(auth_router, prefix="/api/auth", tags=["authorization"])
+app.include_router(auth_router, prefix="/api/auth", tags=["Authorization"])
+app.include_router(poll_router, prefix="/api/polls", tags=["Polls"])
 
 
 @app.exception_handler(RequestValidationError)
@@ -22,7 +22,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 
 @app.exception_handler(CustomValidationError)
-async def validation_exception_handler(request: Request, exc: CustomValidationError):  # noqa
+async def validation_custom_exception_handler(request: Request, exc: CustomValidationError):  # noqa
     return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,
         content=jsonable_encoder({exc.field: exc.message})
@@ -32,9 +32,3 @@ async def validation_exception_handler(request: Request, exc: CustomValidationEr
 @app.get('/')
 async def main():
     return {'message': 'Hello World!'}
-
-
-register_tortoise(
-    app,
-    config=TORTOISE_CONFIG
-)

@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.3.0 - UNRELEASED
+
+### Added
+
+* Polls models, schemas
+* Polls CRUD functionality
+
+### Changed
+
+* Orm and migrations to `sqlalchemy` and `alembic`
+
 ## v0.2.0 - 06.10.2020
 
 ### Changed

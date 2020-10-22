@@ -1,17 +1,17 @@
 import jwt
+from sqlalchemy.orm import Session
 
 from werkzeug.security import generate_password_hash
 
 from api.users.models import User
-from api.users.schemas import UserSchema, ResponseUserSchema
-from api.auth.validators import validate_unique_email, validate_unique_username
+from api.users.schemas import UserSchema, UserRegistrationSchema
 from api.auth.utils import generate_activation_token
 from core.exceptions import CustomValidationError
 from core.tasks import send_email
 from core.settings import USER_ACTIVATION_URL, SECRET_KEY, JWT_ALGORITHM
 
 
-async def activate_user(token: str):
+def activate_user(token: str, db: Session):
     """Method for activating user by its email from token
     """
     token = token
@@ -20,21 +20,22 @@ async def activate_user(token: str):
         data = jwt.decode(token, SECRET_KEY, algorithms=[JWT_ALGORITHM])
     except Exception:
         raise CustomValidationError(field='token', message=error_text)
-    obj = await User.get_or_none(email=data['user_email'], is_active=False)
+    obj = db.query(User).filter_by(email=data['user_email'], is_active=False).first()
     if not obj:
         raise CustomValidationError(field='token', message=error_text)
     obj.is_active = True
-    await obj.save()
+    db.commit()
 
 
-async def create_new_user(user: UserSchema):
+def create_new_user(user: UserRegistrationSchema, db: Session):
     """Method for creating new user
     """
-    await validate_unique_username(user.username)
-    await validate_unique_email(user.email)
 
     user.password = generate_password_hash(user.dict()['password'], method='sha256')
-    user_obj = await User.create(**user.dict(exclude_unset=True))
+    user_obj = User(**user.dict(exclude_unset=True))
+    db.add(user_obj)
+    db.commit()
+    db.refresh(user_obj)
 
     token = generate_activation_token(user.email)
     url = f"{USER_ACTIVATION_URL}?token={token}"
@@ -50,4 +51,4 @@ async def create_new_user(user: UserSchema):
         context=context
     )
 
-    return await ResponseUserSchema.from_tortoise_orm(user_obj)
+    return UserSchema.from_orm(user_obj)
