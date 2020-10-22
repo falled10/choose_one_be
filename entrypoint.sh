@@ -11,9 +11,8 @@ done
 
 echo "PostgreSQL started"
 
-poetry run aerich init -t core.settings.TORTOISE_CONFIG
-poetry run aerich init-db
-poetry run aerich upgrade
+poetry run alembic stamp head
+poetry run alembic upgrade head
 poetry run uvicorn --host 0.0.0.0 --port 8000 main:app --reload
 
 exec "$@"

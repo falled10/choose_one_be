@@ -3,23 +3,29 @@ from datetime import datetime, timedelta
 
 from fastapi import HTTPException, status
 from werkzeug.security import check_password_hash
+from sqlalchemy.orm import Session
 
 from api.auth.schemas import UserLoginSchema
 from api.users.models import User
 from core.settings import SECRET_KEY, JWT_ALGORITHM, \
     JWT_PREFIX, JWT_TOKEN_LIFE_TIME, JWT_REFRESH_TOKEN_LIFE_TIME
+from core.database import SessionLocal
 
 
 INVALID_TOKEN_ERROR = 'Invalid token.'
 
 
-async def get_current_user(data: dict) -> User:
+def get_current_user(data: dict) -> User:
     """Return current logged in user
     """
-    user = await User.get_or_none(id=data['user_id'])
-    if not user or data['type'] == 'refresh':
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=INVALID_TOKEN_ERROR)
-    return user
+    try:
+        db = SessionLocal()
+        user = db.query(User).get(data['user_id'])
+        if not user or data['type'] == 'refresh':
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=INVALID_TOKEN_ERROR)
+        return user
+    finally:
+        db.close()
 
 
 def _decode_token(token: str) -> dict:
@@ -68,12 +74,12 @@ def get_refresh_token(user: User) -> str:
     return _generate_token(user, 'refresh', JWT_REFRESH_TOKEN_LIFE_TIME)
 
 
-async def refresh_tokens(refresh_token: str) -> dict:
+def refresh_tokens(refresh_token: str, db: Session) -> dict:
     """Refresh all tokens for user
     """
     data = _decode_token(refresh_token)
     if data.get('type') == 'refresh':
-        user = await User.get_or_none(id=data['user_id'], is_active=True)
+        user = db.query(User).filter_by(id=data['user_id'], is_active=True).first()
         if user:
             return {
                 'access': get_access_token(user),
@@ -82,11 +88,11 @@ async def refresh_tokens(refresh_token: str) -> dict:
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=INVALID_TOKEN_ERROR)
 
 
-async def authorize_user(credentials: UserLoginSchema) -> dict:
+def authorize_user(credentials: UserLoginSchema, db: Session) -> dict:
     """Use this method to authorize user and return tokens
     """
     error_message = "User with this credentials doesn't exists."
-    user = await User.get_or_none(email=credentials.email, is_active=True)
+    user = db.query(User).filter_by(email=credentials.email, is_active=True).first()
     if not user or not check_password_hash(user.password, credentials.password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=error_message)
     return {
