@@ -11,14 +11,14 @@ from api.auth.schemas import ActivateUserSchema, TokensSchema, UserLoginSchema, 
 router = APIRouter()
 
 
-@router.post('/register', response_model=UserSchema, status_code=201)
+@router.post('/register', response_model=UserSchema, status_code=status.HTTP_201_CREATED)
 async def register_route(user: UserRegistrationSchema, db: Session = Depends(get_db)):
     """Create new user
     """
     return create_new_user(user, db)
 
 
-@router.post('/activate', status_code=204)
+@router.post('/activate', status_code=status.HTTP_204_NO_CONTENT)
 async def activate_user_route(token: ActivateUserSchema, db: Session = Depends(get_db)):
     """Activate non active existed user
     """
