@@ -20,3 +20,14 @@ class Poll(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     creator = relationship(User, foreign_keys='Poll.creator_id', back_populates="polls")
+    options = relationship("Option", back_populates="poll")
+
+
+class Option(Base):
+    __tablename__ = 'options'
+    id = Column(Integer, primary_key=True)
+    label = Column(String)
+    media = Column(String, nullable=True)
+    poll_id = Column(Integer, ForeignKey(Poll.id))
+
+    poll = relationship("Poll", foreign_keys="Option.poll_id", back_populates="options")

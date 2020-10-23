@@ -47,3 +47,15 @@ class ListPollResponseSchema(CamelModel):
     previous_page: Optional[str] = None
     results: List[ResponsePollSchema]
     count: int
+
+
+class CreateOptionSchema(CamelModel):
+    label: str
+    media: Optional[str] = None
+
+
+class OptionSchema(CreateOptionSchema):
+    id: int
+
+    class Config:
+        orm_mode = True

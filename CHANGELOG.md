@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.6.0 - UNRELEASED
+
+### Added
+
+* Option model
+
 ## v0.5.0 - 23.10.2020
 
 ### Added

@@ -2,24 +2,24 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session, Query
 from slugify import slugify
 
-from api.polls.schemas import CreatePollSchema, PatchUpdatePollSchema
-from api.polls.models import Poll
+from api.polls.schemas import CreatePollSchema, PatchUpdatePollSchema, CreateOptionSchema
+from api.polls.models import Poll, Option
 from api.polls.validators import validate_unique_title, validate_is_owner, validate_existed_poll
 from api.users.models import User
 from paginate_sqlalchemy import SqlalchemyOrmPage
 
 
-def get_list_of_all_polls(db: Session, path: str, page_size: int, page: int):
+def get_list_of_all_polls(db: Session, path: str, page_size: int, page: int) -> dict:
     query = db.query(Poll).order_by(text('-id'))
     return get_list_of_polls(path, page_size, page, query)
 
 
-def get_list_of_my_polls(user: User, db: Session, path: str, page_size: int, page: int):
+def get_list_of_my_polls(user: User, db: Session, path: str, page_size: int, page: int) -> dict:
     query = db.query(Poll).filter_by(creator=user).order_by(text('-id'))
     return get_list_of_polls(path, page_size, page, query)
 
 
-def get_list_of_polls(path: str, page_size: int, page: int, query: Query):
+def get_list_of_polls(path: str, page_size: int, page: int, query: Query) -> dict:
     """Returns paginated list of polls
     """
     path = f"{path}?page_size={page_size}&page="
@@ -47,7 +47,7 @@ def create_new_poll(poll: CreatePollSchema, creator: User, db: Session) -> Poll:
     return poll
 
 
-def update_poll(poll_slug: str, creator: User, update_data: PatchUpdatePollSchema, db: Session):
+def update_poll(poll_slug: str, creator: User, update_data: PatchUpdatePollSchema, db: Session) -> Poll:
     poll = validate_existed_poll(db, poll_slug)
     validate_is_owner(poll, creator)
     data = update_data.dict(exclude_unset=True)
@@ -65,3 +65,13 @@ def delete_poll(poll_slug: str, creator: User, db: Session):
     validate_is_owner(poll, creator)
     db.query(Poll).filter_by(id=poll.id).delete()
     db.commit()
+
+
+def create_option(poll_slug: str, creator: User, option: CreateOptionSchema, db: Session) -> Option:
+    poll = validate_existed_poll(db, poll_slug)
+    validate_is_owner(poll, creator)
+    option = Option(**option.dict(), poll=poll)
+    db.add(option)
+    db.commit()
+    db.refresh(option)
+    return option

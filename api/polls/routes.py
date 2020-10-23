@@ -5,9 +5,10 @@ from fastapi.params import Query
 from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
-from api.polls.schemas import ResponsePollSchema, CreatePollSchema, PatchUpdatePollSchema, ListPollResponseSchema
+from api.polls.schemas import ResponsePollSchema, CreatePollSchema, PatchUpdatePollSchema, ListPollResponseSchema, \
+    OptionSchema, CreateOptionSchema
 from api.polls.services import create_new_poll, update_poll, delete_poll, get_single_poll, \
-    get_list_of_all_polls, get_list_of_my_polls
+    get_list_of_all_polls, get_list_of_my_polls, create_option
 from api.auth.dependencies import jwt_required, get_db
 from api.users.models import User
 
@@ -56,3 +57,10 @@ async def list_of_poll_route(request: Request, page: int = 1,
     """Get paginated list of polls
     """
     return get_list_of_all_polls(db, request.url.path, page_size, page)
+
+
+@router.post("/{poll_slug}/options", response_model=OptionSchema, status_code=status.HTTP_201_CREATED)
+async def create_new_option_route(new_option: CreateOptionSchema, poll_slug: str, user: User = Depends(jwt_required),
+                                  db: Session = Depends(get_db)):
+    return create_option(poll_slug, user, new_option, db)
+

@@ -1,6 +1,6 @@
 from slugify import slugify
 
-from api.polls.models import Poll
+from api.polls.models import Poll, Option
 from api.polls.schemas import CreatePollSchema
 from api.polls.services import create_new_poll
 
@@ -173,3 +173,41 @@ def test_get_my_polls_when_there_is_no_my_polls(poll, db, user, client, token_he
     resp = client.get('api/polls/my-polls', headers=token_header)
     assert resp.status_code == 200
     assert resp.json()['count'] == 0
+
+
+def test_create_new_option(poll, token_header, client, db):
+    data = {
+        'label': 'some new option'
+    }
+    resp = client.post(f'api/polls/{poll.slug}/options', json=data, headers=token_header)
+    assert resp.status_code == 201
+    assert resp.json()['label'] == data['label']
+    assert resp.json()['id']
+    option = db.query(Option).get(resp.json()['id'])
+    assert option.poll.id == poll.id
+
+
+def test_create_new_option_for_non_existed_poll(token_header, client):
+    data = {
+        'label': 'some new option'
+    }
+    resp = client.post('api/polls/12321312313/options', json=data, headers=token_header)
+    assert resp.status_code == 404
+
+
+def test_create_new_option_when_logged_out(poll, client):
+    data = {
+        'label': 'some new option'
+    }
+    resp = client.post(f'api/polls/{poll.slug}/options', json=data)
+    assert resp.status_code == 401
+
+
+def test_create_new_option_for_another_users_poll(poll, user, client, token_header, db):
+    poll.creator = user
+    db.commit()
+    data = {
+        'label': 'some new option'
+    }
+    resp = client.post(f'api/polls/{poll.slug}/options', json=data, headers=token_header)
+    assert resp.status_code == 403

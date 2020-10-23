@@ -4,10 +4,10 @@ from slugify import slugify
 from sqlalchemy import text
 
 from api.polls.services import create_new_poll, update_poll, delete_poll, get_single_poll, get_list_of_polls, \
-    get_list_of_all_polls, get_list_of_my_polls
+    get_list_of_all_polls, get_list_of_my_polls, create_option
 from api.polls.validators import validate_unique_title, validate_is_owner, validate_existed_poll
 from api.polls.models import Poll
-from api.polls.schemas import PatchUpdatePollSchema, CreatePollSchema
+from api.polls.schemas import PatchUpdatePollSchema, CreatePollSchema, CreateOptionSchema
 from core.exceptions import CustomValidationError
 
 
@@ -148,3 +148,22 @@ def test_get_list_of_my_polls(poll, user, active_user, db):
     data = get_list_of_my_polls(active_user, db, '/api/polls', 2, 1)
     assert data['count'] == 1
     assert data['results'][0].id == poll.id
+
+
+def test_create_new_option(poll, active_user, db):
+    option = CreateOptionSchema(label='test option')
+    new_option = create_option(poll.slug, active_user, option, db)
+    assert new_option.label == option.label
+    assert new_option.poll.id == poll.id
+
+
+def test_create_new_option_for_non_existed_poll(active_user, db):
+    option = CreateOptionSchema(label='test option')
+    with pytest.raises(HTTPException):
+        create_option('sadfadsf', active_user, option, db)
+
+
+def test_create_new_option_for_not_mine_poll(user, poll, db):
+    option = CreateOptionSchema(label='test option')
+    with pytest.raises(HTTPException):
+        create_option('sadfadsf', user, option, db)
