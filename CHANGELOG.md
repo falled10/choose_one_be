@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.5.0 - 23.10.2020
+
+### Added
+
+* Cors origins variable to settings
+* Current user profile endpoint
+* My polls endpoint
+
 ## v0.4.0 - 22.10.2020
 
 ### Changed

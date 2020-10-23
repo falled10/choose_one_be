@@ -2,15 +2,23 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, status, Request
 from fastapi.params import Query
+from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
 from api.polls.schemas import ResponsePollSchema, CreatePollSchema, PatchUpdatePollSchema, ListPollResponseSchema
-from api.polls.services import create_new_poll, update_poll, delete_poll, get_single_poll, get_list_of_polls
+from api.polls.services import create_new_poll, update_poll, delete_poll, get_single_poll, \
+    get_list_of_all_polls, get_list_of_my_polls
 from api.auth.dependencies import jwt_required, get_db
 from api.users.models import User
 
-
 router = APIRouter()
+
+
+@router.get("/my-polls", response_model=ListPollResponseSchema)
+async def list_of_my_polls_route(request: Request, page: int = 1,
+                                 page_size: Optional[int] = Query(20, gt=0), db: Session = Depends(get_db),
+                                 user: User = Depends(jwt_required)):
+    return get_list_of_my_polls(user, db, request.url.path, page_size, page)
 
 
 @router.post("", response_model=ResponsePollSchema, status_code=status.HTTP_201_CREATED)
@@ -33,7 +41,7 @@ async def update_poll_route(poll_slug: str, poll: PatchUpdatePollSchema, user: U
 async def delete_poll_route(poll_slug: str, user: User = Depends(jwt_required), db: Session = Depends(get_db)):
     """Delete Existed poll"""
     delete_poll(poll_slug, user, db)
-    return
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.get("/{poll_slug}", response_model=ResponsePollSchema)
@@ -47,4 +55,4 @@ async def list_of_poll_route(request: Request, page: int = 1,
                              page_size: Optional[int] = Query(20, gt=0), db: Session = Depends(get_db)):
     """Get paginated list of polls
     """
-    return get_list_of_polls(db, request.url.path, page_size, page)
+    return get_list_of_all_polls(db, request.url.path, page_size, page)

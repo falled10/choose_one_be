@@ -140,15 +140,36 @@ def test_get_list_of_polls(poll, client):
     resp = client.get('api/polls')
     assert resp.status_code == 200
     assert resp.json()['count'] == 1
-    assert resp.json()['result'][0]['id'] == poll.id
+    assert resp.json()['results'][0]['id'] == poll.id
 
 
 def test_get_list_of_polls_without_poll(client):
     resp = client.get('api/polls')
     assert resp.json()['count'] == 0
-    assert resp.json()['result'] == []
+    assert resp.json()['results'] == []
 
 
 def test_get_list_of_polls_wrong_page_size(poll, client):
     resp = client.get('api/polls?page_size=0')
     assert resp.status_code == 400
+
+
+def test_get_my_polls(poll, client, token_header):
+    resp = client.get('api/polls/my-polls', headers=token_header)
+    assert resp.status_code == 200
+    assert resp.json()['count'] == 1
+    assert resp.json()['results'][0]['id'] == poll.id
+
+
+def test_get_my_polls_when_logged_out(poll, client):
+    resp = client.get('api/polls/my-polls')
+    assert resp.status_code == 401
+
+
+def test_get_my_polls_when_there_is_no_my_polls(poll, db, user, client, token_header):
+    poll.creator = user
+    db.commit()
+
+    resp = client.get('api/polls/my-polls', headers=token_header)
+    assert resp.status_code == 200
+    assert resp.json()['count'] == 0
