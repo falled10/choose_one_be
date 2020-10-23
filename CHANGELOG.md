@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.5.0 - UNRELEASED
+
+### Added
+
+* Cors origins variable to settings
+* Current user profile endpoint
+
 ## v0.4.0 - 22.10.2020
 
 ### Changed
