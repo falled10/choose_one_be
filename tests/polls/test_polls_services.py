@@ -1,8 +1,10 @@
 import pytest
 from fastapi.exceptions import HTTPException
 from slugify import slugify
+from sqlalchemy import text
 
-from api.polls.services import create_new_poll, update_poll, delete_poll, get_single_poll, get_list_of_polls
+from api.polls.services import create_new_poll, update_poll, delete_poll, get_single_poll, get_list_of_polls, \
+    get_list_of_all_polls, get_list_of_my_polls
 from api.polls.validators import validate_unique_title, validate_is_owner, validate_existed_poll
 from api.polls.models import Poll
 from api.polls.schemas import PatchUpdatePollSchema, CreatePollSchema
@@ -106,11 +108,12 @@ def test_get_list_of_polls(poll, active_user, db):
     db.add(other_poll)
     db.commit()
     db.refresh(other_poll)
-    data = get_list_of_polls(db, '/api/polls', 2, 1)
+    query = db.query(Poll).order_by(text('-id'))
+    data = get_list_of_polls('/api/polls', 2, 1, query)
     assert data['count'] == 2
     assert not data['next_page']
-    assert data['result'][0].id == other_poll.id
-    assert data['result'][1].id == poll.id
+    assert data['results'][0].id == other_poll.id
+    assert data['results'][1].id == poll.id
 
 
 def test_get_list_of_polls_has_next_page(poll, active_user, db):
@@ -119,6 +122,29 @@ def test_get_list_of_polls_has_next_page(poll, active_user, db):
                       creator=active_user)
     db.add(other_poll)
     db.commit()
-    data = get_list_of_polls(db, '/api/polls', 1, 1)
+    query = db.query(Poll).order_by(text('-id'))
+    data = get_list_of_polls('/api/polls', 1, 1, query)
     assert data['count'] == 2
     assert data['next_page']
+
+
+def test_get_list_of_all_polls(poll, active_user, db):
+    title = 'some other poll'
+    other_poll = Poll(title=title, description="Something about test poll", slug=slugify(title),
+                      creator=active_user)
+    db.add(other_poll)
+    db.commit()
+    data = get_list_of_all_polls(db, '/api/polls', 2, 1)
+    assert data['count'] == 2
+    assert data['results'][0].id == other_poll.id
+
+
+def test_get_list_of_my_polls(poll, user, active_user, db):
+    title = 'some other poll'
+    other_poll = Poll(title=title, description="Something about test poll", slug=slugify(title),
+                      creator=user)
+    db.add(other_poll)
+    db.commit()
+    data = get_list_of_my_polls(active_user, db, '/api/polls', 2, 1)
+    assert data['count'] == 1
+    assert data['results'][0].id == poll.id

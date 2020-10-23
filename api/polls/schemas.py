@@ -45,5 +45,5 @@ class PatchUpdatePollSchema(CreatePollSchema):
 class ListPollResponseSchema(CamelModel):
     next_page: Optional[str] = None
     previous_page: Optional[str] = None
-    result: List[ResponsePollSchema]
+    results: List[ResponsePollSchema]
     count: int
