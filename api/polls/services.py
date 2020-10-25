@@ -4,7 +4,8 @@ from slugify import slugify
 
 from api.polls.schemas import CreatePollSchema, PatchUpdatePollSchema, CreateOptionSchema
 from api.polls.models import Poll, Option
-from api.polls.validators import validate_unique_title, validate_is_owner, validate_existed_poll
+from api.polls.validators import validate_unique_title, validate_is_owner, validate_existed_poll, \
+    validate_existed_option
 from api.users.models import User
 from paginate_sqlalchemy import SqlalchemyOrmPage
 
@@ -75,3 +76,11 @@ def create_option(poll_slug: str, creator: User, option: CreateOptionSchema, db:
     db.commit()
     db.refresh(option)
     return option
+
+
+def delete_option(poll_slug: str, option_id: int, db: Session, creator: User):
+    poll = validate_existed_poll(db, poll_slug)
+    validate_is_owner(poll, creator)
+    option = validate_existed_option(db, option_id, poll)
+    db.query(Option).filter_by(id=option.id).delete()
+    db.commit()

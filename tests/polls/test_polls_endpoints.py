@@ -211,3 +211,31 @@ def test_create_new_option_for_another_users_poll(poll, user, client, token_head
     }
     resp = client.post(f'api/polls/{poll.slug}/options', json=data, headers=token_header)
     assert resp.status_code == 403
+
+
+def test_delete_exited_option(poll, option, client, token_header, db):
+    resp = client.delete(f'api/polls/{poll.slug}/options/{option.id}', headers=token_header)
+    assert resp.status_code == 204
+    assert not db.query(Option).filter_by(id=option.id).first()
+
+
+def test_delete_non_exited_option(poll, client, token_header):
+    resp = client.delete(f'api/polls/{poll.slug}/options/12', headers=token_header)
+    assert resp.status_code == 404
+
+
+def test_delete_option_of_ono_existed_poll(client, token_header):
+    resp = client.delete(f'api/polls/asdfasf/options/12', headers=token_header)
+    assert resp.status_code == 404
+
+
+def test_delete_option_of_poll_from_another_user(poll, user, token_header, client, db, option):
+    poll.creator = user
+    db.commit()
+    resp = client.delete(f'api/polls/{poll.slug}/options/{option.id}', headers=token_header)
+    assert resp.status_code == 403
+
+
+def test_delete_option_of_poll_when_user_is_logged_out(poll, client, option):
+    resp = client.delete(f'api/polls/{poll.slug}/options/{option.id}')
+    assert resp.status_code == 401

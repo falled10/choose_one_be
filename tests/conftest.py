@@ -9,7 +9,7 @@ from alembic.command import upgrade
 from alembic.config import Config
 from fastapi.testclient import TestClient
 
-from api.polls.models import Poll
+from api.polls.models import Poll, Option
 from api.users.models import User
 from api.auth.authorization import get_access_token
 from main import app
@@ -67,6 +67,15 @@ def poll(active_user, db):
     db.commit()
     db.refresh(poll)
     return poll
+
+
+@pytest.fixture
+def option(poll, db):
+    option = Option(label='test option', poll=poll)
+    db.add(option)
+    db.commit()
+    db.refresh(option)
+    return option
 
 
 @pytest.fixture()

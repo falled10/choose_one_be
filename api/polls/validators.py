@@ -2,7 +2,7 @@ from fastapi import status
 from fastapi.exceptions import HTTPException
 from sqlalchemy.orm import Session
 
-from api.polls.models import Poll
+from api.polls.models import Poll, Option
 from api.users.models import User
 from core.exceptions import CustomValidationError
 
@@ -24,3 +24,11 @@ def validate_existed_poll(db: Session, poll_slug):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"Poll with slug {poll_slug} does not exist")
     return poll
+
+
+def validate_existed_option(db: Session, option_id: int, poll: Poll):
+    option = db.query(Option).filter_by(id=option_id, poll=poll).first()
+    if not option:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"Option with id {option_id} does not exist")
+    return option
