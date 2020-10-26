@@ -59,3 +59,14 @@ class OptionSchema(CreateOptionSchema):
 
     class Config:
         orm_mode = True
+
+
+class OptionUpdateSchema(CamelModel):
+    label: Optional[str]
+    media: Optional[str]
+
+    @validator('label')
+    def non_none_label(cls, v):
+        if v is None:
+            raise ValueError("Label cannot be None")
+        return v

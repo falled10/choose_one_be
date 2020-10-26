@@ -2,7 +2,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session, Query
 from slugify import slugify
 
-from api.polls.schemas import CreatePollSchema, PatchUpdatePollSchema, CreateOptionSchema
+from api.polls.schemas import CreatePollSchema, PatchUpdatePollSchema, CreateOptionSchema, OptionUpdateSchema
 from api.polls.models import Poll, Option
 from api.polls.validators import validate_unique_title, validate_is_owner, validate_existed_poll, \
     validate_existed_option
@@ -84,3 +84,13 @@ def delete_option(poll_slug: str, option_id: int, db: Session, creator: User):
     option = validate_existed_option(db, option_id, poll)
     db.query(Option).filter_by(id=option.id).delete()
     db.commit()
+
+
+def update_option(data: OptionUpdateSchema, poll_slug: str, option_id: int, db: Session, creator: User) -> Option:
+    poll = validate_existed_poll(db, poll_slug)
+    validate_is_owner(poll, creator)
+    option = validate_existed_option(db, option_id, poll)
+    db.query(Option).filter_by(poll=poll, id=option.id).update(data.dict(exclude_unset=True))
+    db.commit()
+    db.refresh(option)
+    return option

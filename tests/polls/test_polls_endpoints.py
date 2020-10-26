@@ -239,3 +239,31 @@ def test_delete_option_of_poll_from_another_user(poll, user, token_header, clien
 def test_delete_option_of_poll_when_user_is_logged_out(poll, client, option):
     resp = client.delete(f'api/polls/{poll.slug}/options/{option.id}')
     assert resp.status_code == 401
+
+
+def test_update_existed_option(poll, option, client, db, token_header):
+    data = {
+        'label': 'new updated label'
+    }
+    old_label = option.label
+    resp = client.patch(f'api/polls/{poll.slug}/options/{option.id}', json=data, headers=token_header)
+    assert resp.status_code == 200
+    db.refresh(option)
+    assert option.label == data['label']
+    assert option.label != old_label
+
+
+def test_update_option_invalid_data(poll, option, client, token_header):
+    data = {
+        'label': None
+    }
+    resp = client.patch(f'api/polls/{poll.slug}/options/{option.id}', json=data, headers=token_header)
+    assert resp.status_code == 400
+
+
+def test_update_option_when_logged_out(poll, option, client):
+    data = {
+        'label': 'new updated label'
+    }
+    resp = client.patch(f'api/polls/{poll.slug}/options/{option.id}', json=data)
+    assert resp.status_code == 401

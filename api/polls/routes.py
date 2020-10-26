@@ -6,9 +6,9 @@ from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
 from api.polls.schemas import ResponsePollSchema, CreatePollSchema, PatchUpdatePollSchema, ListPollResponseSchema, \
-    OptionSchema, CreateOptionSchema
+    OptionSchema, CreateOptionSchema, OptionUpdateSchema
 from api.polls.services import create_new_poll, update_poll, delete_poll, get_single_poll, \
-    get_list_of_all_polls, get_list_of_my_polls, create_option, delete_option
+    get_list_of_all_polls, get_list_of_my_polls, create_option, delete_option, update_option
 from api.auth.dependencies import jwt_required, get_db
 from api.users.models import User
 
@@ -70,3 +70,9 @@ async def delete_existed_poll_route(poll_slug: str, option_id: int, user: User =
                                     db: Session = Depends(get_db)):
     return delete_option(poll_slug, option_id, db, user)
 
+
+@router.patch("/{poll_slug}/options/{option_id}", response_model=OptionSchema, status_code=status.HTTP_200_OK)
+async def update_option_route(option_data: OptionUpdateSchema, poll_slug: str, option_id: int,
+                              user: User = Depends(jwt_required),
+                              db: Session = Depends(get_db)):
+    return update_option(option_data, poll_slug, option_id, db, user)
