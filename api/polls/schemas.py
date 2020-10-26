@@ -47,3 +47,26 @@ class ListPollResponseSchema(CamelModel):
     previous_page: Optional[str] = None
     results: List[ResponsePollSchema]
     count: int
+
+
+class CreateOptionSchema(CamelModel):
+    label: str
+    media: Optional[str] = None
+
+
+class OptionSchema(CreateOptionSchema):
+    id: int
+
+    class Config:
+        orm_mode = True
+
+
+class OptionUpdateSchema(CamelModel):
+    label: Optional[str]
+    media: Optional[str]
+
+    @validator('label')
+    def non_none_label(cls, v):
+        if v is None:
+            raise ValueError("Label cannot be None")
+        return v
