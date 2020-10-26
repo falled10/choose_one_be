@@ -267,3 +267,15 @@ def test_update_option_when_logged_out(poll, option, client):
     }
     resp = client.patch(f'api/polls/{poll.slug}/options/{option.id}', json=data)
     assert resp.status_code == 401
+
+
+def test_get_all_polls_options(poll, option, client):
+    resp = client.get(f'api/polls/{poll.slug}/options')
+    data = resp.json()
+    assert resp.status_code == 200
+    assert data[0]['id'] == option.id
+
+
+def test_get_all_polls_non_existed_poll(option, client):
+    resp = client.get('api/polls/sadfasdf/options')
+    assert resp.status_code == 404

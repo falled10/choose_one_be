@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 from fastapi import APIRouter, Depends, status, Request
 from fastapi.params import Query
@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from api.polls.schemas import ResponsePollSchema, CreatePollSchema, PatchUpdatePollSchema, ListPollResponseSchema, \
     OptionSchema, CreateOptionSchema, OptionUpdateSchema
 from api.polls.services import create_new_poll, update_poll, delete_poll, get_single_poll, \
-    get_list_of_all_polls, get_list_of_my_polls, create_option, delete_option, update_option
+    get_list_of_all_polls, get_list_of_my_polls, create_option, delete_option, update_option, list_of_options
 from api.auth.dependencies import jwt_required, get_db
 from api.users.models import User
 
@@ -76,3 +76,8 @@ async def update_option_route(option_data: OptionUpdateSchema, poll_slug: str, o
                               user: User = Depends(jwt_required),
                               db: Session = Depends(get_db)):
     return update_option(option_data, poll_slug, option_id, db, user)
+
+
+@router.get('/{poll_slug}/options', response_model=List[OptionSchema])
+async def list_of_options_route(poll_slug: str, db: Session = Depends(get_db)):
+    return list_of_options(poll_slug, db)

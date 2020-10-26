@@ -94,3 +94,8 @@ def update_option(data: OptionUpdateSchema, poll_slug: str, option_id: int, db: 
     db.commit()
     db.refresh(option)
     return option
+
+
+def list_of_options(poll_slug: str, db: Session):
+    poll = validate_existed_poll(db, poll_slug)
+    return poll.options
