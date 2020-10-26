@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.6.0 - UNRELEASED
+## v0.6.0 - 26.10.2020
 
 ### Added
 
