@@ -5,6 +5,7 @@
 ### Added
 
 * Option model
+* CRUD for options
 
 ## v0.5.0 - 23.10.2020
 
