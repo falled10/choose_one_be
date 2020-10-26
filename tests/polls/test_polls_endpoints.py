@@ -1,6 +1,6 @@
 from slugify import slugify
 
-from api.polls.models import Poll
+from api.polls.models import Poll, Option
 from api.polls.schemas import CreatePollSchema
 from api.polls.services import create_new_poll
 
@@ -173,3 +173,109 @@ def test_get_my_polls_when_there_is_no_my_polls(poll, db, user, client, token_he
     resp = client.get('api/polls/my-polls', headers=token_header)
     assert resp.status_code == 200
     assert resp.json()['count'] == 0
+
+
+def test_create_new_option(poll, token_header, client, db):
+    data = {
+        'label': 'some new option'
+    }
+    resp = client.post(f'api/polls/{poll.slug}/options', json=data, headers=token_header)
+    assert resp.status_code == 201
+    assert resp.json()['label'] == data['label']
+    assert resp.json()['id']
+    option = db.query(Option).get(resp.json()['id'])
+    assert option.poll.id == poll.id
+
+
+def test_create_new_option_for_non_existed_poll(token_header, client):
+    data = {
+        'label': 'some new option'
+    }
+    resp = client.post('api/polls/12321312313/options', json=data, headers=token_header)
+    assert resp.status_code == 404
+
+
+def test_create_new_option_when_logged_out(poll, client):
+    data = {
+        'label': 'some new option'
+    }
+    resp = client.post(f'api/polls/{poll.slug}/options', json=data)
+    assert resp.status_code == 401
+
+
+def test_create_new_option_for_another_users_poll(poll, user, client, token_header, db):
+    poll.creator = user
+    db.commit()
+    data = {
+        'label': 'some new option'
+    }
+    resp = client.post(f'api/polls/{poll.slug}/options', json=data, headers=token_header)
+    assert resp.status_code == 403
+
+
+def test_delete_exited_option(poll, option, client, token_header, db):
+    resp = client.delete(f'api/polls/{poll.slug}/options/{option.id}', headers=token_header)
+    assert resp.status_code == 204
+    assert not db.query(Option).filter_by(id=option.id).first()
+
+
+def test_delete_non_exited_option(poll, client, token_header):
+    resp = client.delete(f'api/polls/{poll.slug}/options/12', headers=token_header)
+    assert resp.status_code == 404
+
+
+def test_delete_option_of_ono_existed_poll(client, token_header):
+    resp = client.delete(f'api/polls/asdfasf/options/12', headers=token_header)
+    assert resp.status_code == 404
+
+
+def test_delete_option_of_poll_from_another_user(poll, user, token_header, client, db, option):
+    poll.creator = user
+    db.commit()
+    resp = client.delete(f'api/polls/{poll.slug}/options/{option.id}', headers=token_header)
+    assert resp.status_code == 403
+
+
+def test_delete_option_of_poll_when_user_is_logged_out(poll, client, option):
+    resp = client.delete(f'api/polls/{poll.slug}/options/{option.id}')
+    assert resp.status_code == 401
+
+
+def test_update_existed_option(poll, option, client, db, token_header):
+    data = {
+        'label': 'new updated label'
+    }
+    old_label = option.label
+    resp = client.patch(f'api/polls/{poll.slug}/options/{option.id}', json=data, headers=token_header)
+    assert resp.status_code == 200
+    db.refresh(option)
+    assert option.label == data['label']
+    assert option.label != old_label
+
+
+def test_update_option_invalid_data(poll, option, client, token_header):
+    data = {
+        'label': None
+    }
+    resp = client.patch(f'api/polls/{poll.slug}/options/{option.id}', json=data, headers=token_header)
+    assert resp.status_code == 400
+
+
+def test_update_option_when_logged_out(poll, option, client):
+    data = {
+        'label': 'new updated label'
+    }
+    resp = client.patch(f'api/polls/{poll.slug}/options/{option.id}', json=data)
+    assert resp.status_code == 401
+
+
+def test_get_all_polls_options(poll, option, client):
+    resp = client.get(f'api/polls/{poll.slug}/options')
+    data = resp.json()
+    assert resp.status_code == 200
+    assert data[0]['id'] == option.id
+
+
+def test_get_all_polls_non_existed_poll(option, client):
+    resp = client.get('api/polls/sadfasdf/options')
+    assert resp.status_code == 404

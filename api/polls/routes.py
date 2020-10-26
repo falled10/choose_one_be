@@ -1,13 +1,14 @@
-from typing import Optional
+from typing import Optional, List
 
 from fastapi import APIRouter, Depends, status, Request
 from fastapi.params import Query
 from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
-from api.polls.schemas import ResponsePollSchema, CreatePollSchema, PatchUpdatePollSchema, ListPollResponseSchema
+from api.polls.schemas import ResponsePollSchema, CreatePollSchema, PatchUpdatePollSchema, ListPollResponseSchema, \
+    OptionSchema, CreateOptionSchema, OptionUpdateSchema
 from api.polls.services import create_new_poll, update_poll, delete_poll, get_single_poll, \
-    get_list_of_all_polls, get_list_of_my_polls
+    get_list_of_all_polls, get_list_of_my_polls, create_option, delete_option, update_option, list_of_options
 from api.auth.dependencies import jwt_required, get_db
 from api.users.models import User
 
@@ -56,3 +57,27 @@ async def list_of_poll_route(request: Request, page: int = 1,
     """Get paginated list of polls
     """
     return get_list_of_all_polls(db, request.url.path, page_size, page)
+
+
+@router.post("/{poll_slug}/options", response_model=OptionSchema, status_code=status.HTTP_201_CREATED)
+async def create_new_option_route(new_option: CreateOptionSchema, poll_slug: str, user: User = Depends(jwt_required),
+                                  db: Session = Depends(get_db)):
+    return create_option(poll_slug, user, new_option, db)
+
+
+@router.delete("/{poll_slug}/options/{option_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_existed_poll_route(poll_slug: str, option_id: int, user: User = Depends(jwt_required),
+                                    db: Session = Depends(get_db)):
+    return delete_option(poll_slug, option_id, db, user)
+
+
+@router.patch("/{poll_slug}/options/{option_id}", response_model=OptionSchema, status_code=status.HTTP_200_OK)
+async def update_option_route(option_data: OptionUpdateSchema, poll_slug: str, option_id: int,
+                              user: User = Depends(jwt_required),
+                              db: Session = Depends(get_db)):
+    return update_option(option_data, poll_slug, option_id, db, user)
+
+
+@router.get('/{poll_slug}/options', response_model=List[OptionSchema])
+async def list_of_options_route(poll_slug: str, db: Session = Depends(get_db)):
+    return list_of_options(poll_slug, db)
