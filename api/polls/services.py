@@ -1,3 +1,5 @@
+from random import choice
+
 from sqlalchemy import text
 from sqlalchemy.orm import Session, Query
 from slugify import slugify
@@ -6,7 +8,7 @@ from paginate_sqlalchemy import SqlalchemyOrmPage
 from api.polls.schemas import CreatePollSchema, PatchUpdatePollSchema, CreateOptionSchema, OptionUpdateSchema
 from api.polls.models import Poll, Option
 from api.polls.validators import validate_unique_title, validate_is_owner, validate_existed_poll, \
-    validate_existed_option, validate_poll_places_number
+    validate_existed_option, validate_poll_places_number, validate_places_number
 from api.users.models import User
 from core.settings import MAX_PLACES_NUMBER, MIN_PLACES_NUMBER
 
@@ -119,8 +121,19 @@ def get_places_from(from_num: int):
 
 def poll_places_number(poll_slug: str, db: Session):
     poll = validate_existed_poll(db, poll_slug)
-    validate_poll_places_number(poll, db)
     places_number = db.query(Option).filter_by(poll=poll).count()
+    validate_places_number(places_number)
     places_number = places_number if places_number % 2 == 0 else places_number - 1
     max_places = places_number if places_number < MAX_PLACES_NUMBER else MAX_PLACES_NUMBER
     return get_places_from(max_places)
+
+
+def get_poll_options(poll_slug: str, db: Session, places_number: int):
+    poll = validate_existed_poll(db, poll_slug)
+    validate_poll_places_number(poll, db, places_number)
+    options = poll.options
+    result = []
+    for _ in range(places_number // 2):
+        result.append([options.pop(options.index(choice(options))),
+                       options.pop(options.index(choice(options)))])
+    return result
