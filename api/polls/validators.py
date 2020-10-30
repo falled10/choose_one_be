@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from api.polls.models import Poll, Option
 from api.users.models import User
 from core.exceptions import CustomValidationError
+from core.settings import MIN_PLACES_NUMBER
 
 
 def validate_unique_title(poll: Poll, title: str, db: Session):
@@ -32,3 +33,9 @@ def validate_existed_option(db: Session, option_id: int, poll: Poll):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"Option with id {option_id} does not exist")
     return option
+
+
+def validate_poll_places_number(poll: Poll, db: Session):
+    if db.query(Option).filter_by(poll=poll).count() < MIN_PLACES_NUMBER:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="Poll should contain more options")

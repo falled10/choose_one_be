@@ -1,13 +1,14 @@
 from sqlalchemy import text
 from sqlalchemy.orm import Session, Query
 from slugify import slugify
+from paginate_sqlalchemy import SqlalchemyOrmPage
 
 from api.polls.schemas import CreatePollSchema, PatchUpdatePollSchema, CreateOptionSchema, OptionUpdateSchema
 from api.polls.models import Poll, Option
 from api.polls.validators import validate_unique_title, validate_is_owner, validate_existed_poll, \
-    validate_existed_option
+    validate_existed_option, validate_poll_places_number
 from api.users.models import User
-from paginate_sqlalchemy import SqlalchemyOrmPage
+from core.settings import MAX_PLACES_NUMBER, MIN_PLACES_NUMBER
 
 
 def get_list_of_all_polls(db: Session, path: str, page_size: int, page: int) -> dict:
@@ -99,3 +100,27 @@ def update_option(data: OptionUpdateSchema, poll_slug: str, option_id: int, db: 
 def list_of_options(poll_slug: str, db: Session):
     poll = validate_existed_poll(db, poll_slug)
     return poll.options
+
+
+def get_places_from(from_num: int):
+    """Returns sequence of places from `from_num` to `MIN_PLACES_NUMBER`
+
+    Example:
+        `from_num` = 64
+        result will be [64, 32, 16, 8]
+    """
+    result = []
+    place = from_num
+    while place >= MIN_PLACES_NUMBER:
+        result.append(place)
+        place //= 2
+    return result
+
+
+def poll_places_number(poll_slug: str, db: Session):
+    poll = validate_existed_poll(db, poll_slug)
+    validate_poll_places_number(poll, db)
+    places_number = db.query(Option).filter_by(poll=poll).count()
+    places_number = places_number if places_number % 2 == 0 else places_number - 1
+    max_places = places_number if places_number < MAX_PLACES_NUMBER else MAX_PLACES_NUMBER
+    return get_places_from(max_places)

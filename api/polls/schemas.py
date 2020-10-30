@@ -30,7 +30,6 @@ class ResponsePollSchema(CamelModel):
     description: str
     media_type: str
     slug: str
-    places_number: int
 
     class Config:
         orm_mode = True

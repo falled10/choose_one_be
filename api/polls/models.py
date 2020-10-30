@@ -15,7 +15,6 @@ class Poll(Base):
     creator_id = Column(Integer, ForeignKey(User.id))
     description = Column(Text, nullable=True, default="")
     media_type = Column(String, default="IMAGE")
-    places_number = Column(Integer, default=0)
     image = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
