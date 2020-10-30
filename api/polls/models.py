@@ -20,6 +20,7 @@ class Poll(Base):
 
     creator = relationship(User, foreign_keys='Poll.creator_id', back_populates="polls")
     options = relationship("Option", back_populates="poll")
+    user_polls = relationship("UserPoll", back_populates="poll")
 
 
 class Option(Base):
