@@ -292,18 +292,3 @@ def test_get_places_number_of_poll(client, full_poll):
 def test_get_places_number_to_few_options(client, poll):
     resp = client.get(f'api/polls/{poll.slug}/places-numbers')
     assert resp.status_code == 400
-
-
-def test_get_start_poll_for_2_places(full_poll, client):
-    resp = client.get(f'api/polls/{full_poll.slug}/2')
-    options = full_poll.options
-    options_ids = [o.id for o in options]
-    data = resp.json()
-    assert resp.status_code == 200
-    assert data[0][0]['id'] in options_ids
-    assert data[0][1]['id'] in options_ids
-
-
-def test_get_start_poll_for_wrong_amount_of_places(full_poll, client):
-    resp = client.get(f'/api/polls/{full_poll.slug}/123')
-    assert resp.status_code == 400

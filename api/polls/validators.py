@@ -39,13 +39,3 @@ def validate_places_number(places_number: int):
     if places_number < MIN_PLACES_NUMBER:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="Poll should contain more options")
-
-
-def validate_poll_places_number(poll: Poll, db: Session, places_number: int):
-    from api.polls.services import get_places_from
-    poll_places = db.query(Option).filter_by(poll=poll).count()
-    validate_places_number(poll_places)
-    places = get_places_from(poll_places)
-    if places_number not in places:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail="Please select right places number")

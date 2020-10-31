@@ -9,7 +9,7 @@ from api.polls.schemas import ResponsePollSchema, CreatePollSchema, PatchUpdateP
     OptionSchema, CreateOptionSchema, OptionUpdateSchema
 from api.polls.services import create_new_poll, update_poll, delete_poll, get_single_poll, \
     get_list_of_all_polls, get_list_of_my_polls, create_option, delete_option, update_option, list_of_options, \
-    poll_places_number, get_poll_options
+    poll_places_number
 from api.auth.dependencies import jwt_required, get_db
 from api.users.models import User
 
@@ -87,8 +87,3 @@ async def update_option_route(option_data: OptionUpdateSchema, poll_slug: str, o
 @router.get('/{poll_slug}/options', response_model=List[OptionSchema])
 async def list_of_options_route(poll_slug: str, db: Session = Depends(get_db)):
     return list_of_options(poll_slug, db)
-
-
-@router.get('/{poll_slug}/{places_number}')
-async def start_poll_route(poll_slug: str, places_number: int, db: Session = Depends(get_db)):
-    return get_poll_options(poll_slug, db, places_number)
