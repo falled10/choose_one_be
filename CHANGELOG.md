@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.7.0 - 31.10.2020
+
+### Added
+
+* User poll models
+* Logic for create user poll
+
 ## v0.6.0 - 26.10.2020
 
 ### Added

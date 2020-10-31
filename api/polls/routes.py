@@ -8,7 +8,8 @@ from sqlalchemy.orm import Session
 from api.polls.schemas import ResponsePollSchema, CreatePollSchema, PatchUpdatePollSchema, ListPollResponseSchema, \
     OptionSchema, CreateOptionSchema, OptionUpdateSchema
 from api.polls.services import create_new_poll, update_poll, delete_poll, get_single_poll, \
-    get_list_of_all_polls, get_list_of_my_polls, create_option, delete_option, update_option, list_of_options
+    get_list_of_all_polls, get_list_of_my_polls, create_option, delete_option, update_option, list_of_options, \
+    poll_places_number
 from api.auth.dependencies import jwt_required, get_db
 from api.users.models import User
 
@@ -57,6 +58,11 @@ async def list_of_poll_route(request: Request, page: int = 1,
     """Get paginated list of polls
     """
     return get_list_of_all_polls(db, request.url.path, page_size, page)
+
+
+@router.get('/{poll_slug}/places-numbers', response_model=List[int])
+async def poll_places_number_route(poll_slug: str, db: Session = Depends(get_db)):
+    return poll_places_number(poll_slug, db)
 
 
 @router.post("/{poll_slug}/options", response_model=OptionSchema, status_code=status.HTTP_201_CREATED)
