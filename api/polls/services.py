@@ -1,5 +1,3 @@
-from random import choice
-
 from sqlalchemy import text
 from sqlalchemy.orm import Session, Query
 from slugify import slugify

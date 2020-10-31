@@ -71,7 +71,7 @@ def poll(active_user, db):
 
 @pytest.fixture
 def full_poll(active_user, db):
-    title = "new test poll"
+    title = "new test full poll"
     poll = Poll(title=title, description="Something about test poll", slug=slugify(title),
                 creator=active_user)
     db.add(poll)

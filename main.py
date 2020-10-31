@@ -9,12 +9,14 @@ from core.settings import CORS_ORIGINS
 from api.auth.routes import router as auth_router
 from api.polls.routes import router as poll_router
 from api.profile.routes import router as profile_router
+from api.user_polls.routes import router as user_polls_router
 
 app = FastAPI()
 
 app.include_router(auth_router, prefix="/api/auth", tags=["Authorization"])
 app.include_router(poll_router, prefix="/api/polls", tags=["Polls"])
 app.include_router(profile_router, prefix="/api/profile", tags=['Profile'])
+app.include_router(user_polls_router, prefix="/api/user-polls", tags=['User Polls'])
 
 
 app.add_middleware(CORSMiddleware, allow_origins=CORS_ORIGINS, allow_credentials=True,

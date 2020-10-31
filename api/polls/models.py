@@ -31,3 +31,4 @@ class Option(Base):
     poll_id = Column(Integer, ForeignKey(Poll.id))
 
     poll = relationship("Poll", foreign_keys="Option.poll_id", back_populates="options")
+    user_options = relationship("UserOption", back_populates="option")

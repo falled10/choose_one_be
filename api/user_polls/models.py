@@ -1,10 +1,10 @@
 from datetime import datetime
 
-from sqlalchemy import Column, Integer, ForeignKey, DateTime, String
+from sqlalchemy import Column, Integer, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 
 from api.users.models import User
-from api.polls.models import Poll
+from api.polls.models import Poll, Option
 from core.database import Base
 
 
@@ -24,8 +24,9 @@ class UserPoll(Base):
 class UserOption(Base):
     __tablename__ = 'user_options'
     id = Column(Integer, primary_key=True)
-    label = Column(String)
     place_number = Column(Integer)
     poll_id = Column(Integer, ForeignKey(UserPoll.id))
+    option_id = Column(Integer, ForeignKey(Option.id))
 
     poll = relationship(UserPoll, foreign_keys="UserOption.poll_id", back_populates="user_options")
+    option = relationship(Option, foreign_keys="UserOption.option_id", back_populates="user_options")
