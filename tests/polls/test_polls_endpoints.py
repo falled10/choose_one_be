@@ -225,7 +225,7 @@ def test_delete_non_exited_option(poll, client, token_header):
 
 
 def test_delete_option_of_ono_existed_poll(client, token_header):
-    resp = client.delete(f'api/polls/asdfasf/options/12', headers=token_header)
+    resp = client.delete('api/polls/asdfasf/options/12', headers=token_header)
     assert resp.status_code == 404
 
 
@@ -272,10 +272,23 @@ def test_update_option_when_logged_out(poll, option, client):
 def test_get_all_polls_options(poll, option, client):
     resp = client.get(f'api/polls/{poll.slug}/options')
     data = resp.json()
+    print(data)
     assert resp.status_code == 200
     assert data[0]['id'] == option.id
 
 
-def test_get_all_polls_non_existed_poll(option, client):
+def test_get_all_polls_non_existed_poll(client):
     resp = client.get('api/polls/sadfasdf/options')
     assert resp.status_code == 404
+
+
+def test_get_places_number_of_poll(client, full_poll):
+    resp = client.get(f'api/polls/{full_poll.slug}/places-numbers')
+    print(resp.json())
+    assert resp.status_code == 200
+    assert resp.json() == [2]
+
+
+def test_get_places_number_to_few_options(client, poll):
+    resp = client.get(f'api/polls/{poll.slug}/places-numbers')
+    assert resp.status_code == 400
