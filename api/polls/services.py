@@ -99,7 +99,7 @@ def update_option(data: OptionUpdateSchema, poll_slug: str, option_id: int, db: 
 
 def list_of_options(poll_slug: str, db: Session):
     poll = validate_existed_poll(db, poll_slug)
-    return poll.options
+    return list(db.query(Option).filter_by(poll=poll).order_by(text('-id')))
 
 
 def get_places_from(from_num: int):

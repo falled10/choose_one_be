@@ -74,7 +74,8 @@ async def create_new_option_route(new_option: CreateOptionSchema, poll_slug: str
 @router.delete("/{poll_slug}/options/{option_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_existed_poll_route(poll_slug: str, option_id: int, user: User = Depends(jwt_required),
                                     db: Session = Depends(get_db)):
-    return delete_option(poll_slug, option_id, db, user)
+    delete_option(poll_slug, option_id, db, user)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.patch("/{poll_slug}/options/{option_id}", response_model=OptionSchema, status_code=status.HTTP_200_OK)

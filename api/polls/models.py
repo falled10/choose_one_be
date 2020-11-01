@@ -12,14 +12,14 @@ class Poll(Base):
     id = Column(Integer, primary_key=True)
     title = Column(String, unique=True)
     slug = Column(String, unique=True)
-    creator_id = Column(Integer, ForeignKey(User.id))
+    creator_id = Column(Integer, ForeignKey(User.id, ondelete='CASCADE'))
     description = Column(Text, nullable=True, default="")
     media_type = Column(String, default="IMAGE")
     image = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     creator = relationship(User, foreign_keys='Poll.creator_id', back_populates="polls")
-    options = relationship("Option", back_populates="poll")
+    options = relationship("Option", back_populates="poll", passive_deletes=True)
     user_polls = relationship("UserPoll", back_populates="poll")
 
 
@@ -28,7 +28,7 @@ class Option(Base):
     id = Column(Integer, primary_key=True)
     label = Column(String)
     media = Column(String, nullable=True)
-    poll_id = Column(Integer, ForeignKey(Poll.id))
+    poll_id = Column(Integer, ForeignKey(Poll.id, ondelete='CASCADE'))
 
     poll = relationship("Poll", foreign_keys="Option.poll_id", back_populates="options")
     user_options = relationship("UserOption", back_populates="option")
