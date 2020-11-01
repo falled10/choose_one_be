@@ -35,10 +35,10 @@ class ResponsePollSchema(CamelModel):
         orm_mode = True
 
 
-class PatchUpdatePollSchema(CreatePollSchema):
+class PatchUpdatePollSchema(CamelModel):
     title: Optional[str] = None
     description: Optional[str] = None
-    media_type: Optional[str] = None
+    media_type: Optional[Literal['Image', 'GIF', 'Video']] = None
 
 
 class ListPollResponseSchema(CamelModel):

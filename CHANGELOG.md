@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.7.1 - 01.11.2020
+
+### Added
+
+* Cascade delete option
+* Ordering for options
+
 ## v0.7.0 - 31.10.2020
 
 ### Added
