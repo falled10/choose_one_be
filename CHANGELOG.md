@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.8.0 - 02.11.2020
+
+### Added
+
+* Places number query param for options
+
 ## v0.7.1 - 01.11.2020
 
 ### Added
