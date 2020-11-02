@@ -97,9 +97,9 @@ def update_option(data: OptionUpdateSchema, poll_slug: str, option_id: int, db: 
     return option
 
 
-def list_of_options(poll_slug: str, db: Session):
+def list_of_options(poll_slug: str, db: Session, places_number: int = MAX_PLACES_NUMBER):
     poll = validate_existed_poll(db, poll_slug)
-    return list(db.query(Option).filter_by(poll=poll).order_by(text('-id')))
+    return list(db.query(Option).filter_by(poll=poll).order_by(text('-id')).limit(places_number))
 
 
 def get_places_from(from_num: int):

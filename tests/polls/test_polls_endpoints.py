@@ -86,9 +86,9 @@ def test_update_non_existed_poll(client, db, token_header):
     assert resp.status_code == 404
 
 
-def test_update_existed_poll_with_the_same_title(client, user, db, token_header, poll):
+def test_update_existed_poll_with_the_same_title(client, active_user, db, token_header, poll):
     data = CreatePollSchema(title='some another title', description='some another description')
-    another_poll = create_new_poll(data, user, db)
+    another_poll = create_new_poll(data, active_user, db)
     data = {
         'title': poll.title
     }
@@ -272,9 +272,15 @@ def test_update_option_when_logged_out(poll, option, client):
 def test_get_all_polls_options(poll, option, client):
     resp = client.get(f'api/polls/{poll.slug}/options')
     data = resp.json()
-    print(data)
     assert resp.status_code == 200
     assert data[0]['id'] == option.id
+
+
+def test_get_only_one_poll_option(full_poll, client):
+    resp = client.get(f'api/polls/{full_poll.slug}/options?places_number=1')
+    data = resp.json()
+    assert resp.status_code == 200
+    assert len(data) == 1
 
 
 def test_get_all_polls_non_existed_poll(client):
