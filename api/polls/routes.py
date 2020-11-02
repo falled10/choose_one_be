@@ -12,6 +12,7 @@ from api.polls.services import create_new_poll, update_poll, delete_poll, get_si
     poll_places_number
 from api.auth.dependencies import jwt_required, get_db
 from api.users.models import User
+from core.settings import MAX_PLACES_NUMBER
 
 router = APIRouter()
 
@@ -86,5 +87,5 @@ async def update_option_route(option_data: OptionUpdateSchema, poll_slug: str, o
 
 
 @router.get('/{poll_slug}/options', response_model=List[OptionSchema])
-async def list_of_options_route(poll_slug: str, db: Session = Depends(get_db)):
-    return list_of_options(poll_slug, db)
+async def list_of_options_route(poll_slug: str, places_number: int = MAX_PLACES_NUMBER, db: Session = Depends(get_db)):
+    return list_of_options(poll_slug, db, places_number)
