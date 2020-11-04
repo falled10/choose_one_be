@@ -1,4 +1,6 @@
-from pydantic import EmailStr, validator
+from pydantic import EmailStr, validator, root_validator
+from pydantic.types import constr
+from werkzeug.security import generate_password_hash
 
 from api.auth.utils import generate_token
 from api.users.models import User
@@ -36,3 +38,29 @@ class ForgetPasswordSchema(CamelModel):
             )
         finally:
             db.close()
+
+
+class PasswordSchema(CamelModel):
+    """Base schema for password changing
+    """
+    new_password: constr(min_length=4)
+    confirmed_password: constr(min_length=4)
+
+    @root_validator
+    def validate_passwords_match(cls, values):
+        new_password = values['new_password']
+        confirmed_password = values['confirmed_password']
+        if new_password != confirmed_password:
+            raise ValueError("The two password fields didn't match.")
+        return values
+
+
+class ResetPasswordSchema(PasswordSchema):
+    token: str
+
+    @staticmethod
+    def change_password(user, new_password, db):
+        user.password = generate_password_hash(new_password, method='sha256')
+        db.commit()
+        db.refresh(user)
+        return user

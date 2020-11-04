@@ -23,6 +23,12 @@ def test_activate_inactive_user(user, db):
     assert user.is_active
 
 
+def test_activate_user_token_has_another_type(user, db):
+    token = generate_token(user.email, 'some other type')
+    with pytest.raises(CustomValidationError):
+        activate_user(token, db)
+
+
 def test_activate_inactive_user_invalid_token(db):
     with pytest.raises(CustomValidationError):
         activate_user('asdfadsfasdf', db)

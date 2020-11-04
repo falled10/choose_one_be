@@ -18,6 +18,8 @@ def activate_user(token: str, db: Session):
     error_text = f"Provided activation token '{token}' is not valid"
     try:
         data = jwt.decode(token, SECRET_KEY, algorithms=[JWT_ALGORITHM])
+        if data['type'] != 'activate':
+            raise
     except Exception:
         raise CustomValidationError(field='token', message=error_text)
     obj = db.query(User).filter_by(email=data['user_email'], is_active=False).first()
