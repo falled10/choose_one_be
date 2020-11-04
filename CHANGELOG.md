@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.10.0 - 04.11.2020
+
+### Added
+
+* Celery and celery beat services to docker-compose
+
 ## v0.9.0 - 04.11.2020
 
 ### Added
