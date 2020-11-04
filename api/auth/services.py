@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash
 
 from api.users.models import User
 from api.users.schemas import UserSchema, UserRegistrationSchema
-from api.auth.utils import generate_activation_token
+from api.auth.utils import generate_token
 from core.exceptions import CustomValidationError
 from core.tasks import send_email
 from core.settings import USER_ACTIVATION_URL, SECRET_KEY, JWT_ALGORITHM
@@ -37,7 +37,7 @@ def create_new_user(user: UserRegistrationSchema, db: Session):
     db.commit()
     db.refresh(user_obj)
 
-    token = generate_activation_token(user.email)
+    token = generate_token(user.email, 'activate')
     url = f"{USER_ACTIVATION_URL}?token={token}"
     context = {
         'url': url,
