@@ -32,7 +32,7 @@ class ForgetPasswordSchema(CamelModel):
             url = f"{PASSWORD_RESET_URL}?token={token}"
             send_email.delay(
                 subject="ChooseOne Password Restoring",
-                template='notifications/password_forget.html',
+                template='password_forget.html',
                 recipients=[user.email],
                 context={'url': url, 'email': user.email}
             )

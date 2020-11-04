@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.10.1 - 04.11.2020
+
+### Added
+
+* Template for password forget email
+
 ## v0.10.0 - 04.11.2020
 
 ### Added
