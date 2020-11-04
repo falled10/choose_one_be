@@ -13,22 +13,6 @@ services:
     depends_on:
       - db
       - redis
-  db:
-    container_name: db
-    image: postgres:latest
-    env_file: .env
-    volumes:
-      - ./.data/postgres:/var/lib/postgresql/data
-    ports:
-      - 5433:5432
-  redis:
-    container_name: broker
-    image: redis:latest
-    env_file: .env
-    ports:
-      - 6379:6379
-    volumes:
-      - ./.data/redis:/data
   celery:
     build: .
     command: poetry run celery -A core worker -l INFO
@@ -51,3 +35,19 @@ services:
     depends_on:
       - redis
       - api
+  db:
+    container_name: db
+    image: postgres:latest
+    env_file: .env
+    volumes:
+      - ./.data/postgres:/var/lib/postgresql/data
+    ports:
+      - 5433:5432
+  redis:
+    container_name: redis
+    image: redis:latest
+    env_file: .env
+    ports:
+      - 6379:6379
+    volumes:
+      - ./.data/redis:/data
