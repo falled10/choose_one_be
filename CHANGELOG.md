@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.9.0 - 04.11.2020
+
+### Added
+
+* Forget and reset password logic
+
 ## v0.8.0 - 02.11.2020
 
 ### Added
