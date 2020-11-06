@@ -14,10 +14,6 @@ class SearchableMixin:
             ids, total = query_index(cls.__tablename__, query, page, per_page)
             if total == 0:
                 return db.query(cls).filter_by(id=0), 0
-
-            when = []
-            for i in range(len(ids)):
-                when.append((ids[i], i))
             return db.query(cls).filter(cls.id.in_(ids)), total
         finally:
             db.close()
