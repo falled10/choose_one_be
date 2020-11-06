@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from core.exceptions import CustomValidationError
 from core.settings import CORS_ORIGINS
+from core.search import es
 from api.auth.routes import router as auth_router
 from api.polls.routes import router as poll_router
 from api.profile.routes import router as profile_router
@@ -42,3 +43,8 @@ async def validation_custom_exception_handler(request: Request, exc: CustomValid
 @app.get('/')
 async def main():
     return {'message': 'Hello World!'}
+
+
+@app.on_event('shutdown')
+async def shutdown_event():
+    es.close()
