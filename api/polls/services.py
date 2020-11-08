@@ -36,6 +36,19 @@ def get_list_of_polls(path: str, page_size: int, page: int, query: Query) -> dic
     }
 
 
+def get_list_of_searched_polls(path: str, page_size: int, page: int, query: str) -> dict:
+    """Returns paginated list of searched polls
+    """
+    result, total = Poll.search(query, page, page_size)
+    path = f"{path}?page_size={page_size}&page="
+    return {
+        'next_page': path + str(page + 1) if total > page * page_size else None,
+        'previous_page': path + str(page - 1) if page > 1 else None,
+        'results': result.all(),
+        'count': total
+    }
+
+
 def get_single_poll(poll_slug: str, db: Session) -> Poll:
     return validate_existed_poll(db, poll_slug)
 

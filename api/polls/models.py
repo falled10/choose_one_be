@@ -5,10 +5,12 @@ from sqlalchemy.orm import relationship
 
 from api.users.models import User
 from core.database import Base
+from core.mixins import SearchableMixin
 
 
-class Poll(Base):
+class Poll(SearchableMixin, Base):
     __tablename__ = 'polls'
+    __searchable__ = ['title', 'description']
     id = Column(Integer, primary_key=True)
     title = Column(String, unique=True)
     slug = Column(String, unique=True)
@@ -21,6 +23,11 @@ class Poll(Base):
     creator = relationship(User, foreign_keys='Poll.creator_id', back_populates="polls")
     options = relationship("Option", back_populates="poll", passive_deletes=True)
     user_polls = relationship("UserPoll", back_populates="poll")
+
+    @classmethod
+    def search(cls, query, page, per_page):
+        query = {'multi_match': {'query': query, 'fields': ['*']}}
+        return super().search(query, page, per_page)
 
 
 class Option(Base):
