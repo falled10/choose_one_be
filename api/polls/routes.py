@@ -9,7 +9,7 @@ from api.polls.schemas import ResponsePollSchema, CreatePollSchema, PatchUpdateP
     OptionSchema, CreateOptionSchema, OptionUpdateSchema
 from api.polls.services import create_new_poll, update_poll, delete_poll, get_single_poll, \
     get_list_of_all_polls, get_list_of_my_polls, create_option, delete_option, update_option, list_of_options, \
-    poll_places_number
+    poll_places_number, get_list_of_searched_polls
 from api.auth.dependencies import jwt_required, get_db
 from api.users.models import User
 from core.settings import MAX_PLACES_NUMBER
@@ -22,6 +22,12 @@ async def list_of_my_polls_route(request: Request, page: int = 1,
                                  page_size: Optional[int] = Query(20, gt=0), db: Session = Depends(get_db),
                                  user: User = Depends(jwt_required)):
     return get_list_of_my_polls(user, db, request.url.path, page_size, page)
+
+
+@router.get("/search/{query}", response_model=ListPollResponseSchema)
+async def search_polls_route(query: str, request: Request, page: int = 1,
+                             page_size: Optional[int] = Query(20, gt=0)):
+    return get_list_of_searched_polls(request.url.path, page_size, page, query)
 
 
 @router.post("", response_model=ResponsePollSchema, status_code=status.HTTP_201_CREATED)
