@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.11.0 - 08.11.2020
+
+### Added
+
+* Elasticsearch to project
+* Mixin for adding and deleting indexes
+* Search route for polls
+
 ## v0.10.1 - 04.11.2020
 
 ### Added
