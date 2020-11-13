@@ -12,16 +12,6 @@ class UserOptionSchema(CamelModel):
     option_id: int
     place_number: int
 
-    @validator("option_id")
-    def check_existed_option(cls, v):
-        try:
-            db = SessionLocal()
-            if not db.query(Option).get(v):
-                raise ValueError("Option does not exists with this id")
-        finally:
-            db.close()
-        return v
-
 
 class UserPollSchema(CamelModel):
     poll_id: int
