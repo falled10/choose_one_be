@@ -1,3 +1,5 @@
+import httpx
+
 from sqlalchemy import text
 from sqlalchemy.orm import Session, Query
 from slugify import slugify
@@ -8,7 +10,7 @@ from api.polls.models import Poll, Option
 from api.polls.validators import validate_unique_title, validate_is_owner, validate_existed_poll, \
     validate_existed_option, validate_places_number
 from api.users.models import User
-from core.settings import MAX_PLACES_NUMBER, MIN_PLACES_NUMBER
+from core.settings import MAX_PLACES_NUMBER, MIN_PLACES_NUMBER, STATISTICS_SERVICE_URL
 
 
 def get_list_of_all_polls(db: Session, path: str, page_size: int, page: int) -> dict:
@@ -92,12 +94,14 @@ def create_option(poll_slug: str, creator: User, option: CreateOptionSchema, db:
     return option
 
 
-def delete_option(poll_slug: str, option_id: int, db: Session, creator: User):
+async def delete_option(poll_slug: str, option_id: int, db: Session, creator: User):
     poll = validate_existed_poll(db, poll_slug)
     validate_is_owner(poll, creator)
     option = validate_existed_option(db, option_id, poll)
     db.query(Option).filter_by(id=option.id).delete()
     db.commit()
+    async with httpx.AsyncClient() as client:
+        await client.delete(f"{STATISTICS_SERVICE_URL}/api/statistics/{option_id}")
 
 
 def update_option(data: OptionUpdateSchema, poll_slug: str, option_id: int, db: Session, creator: User) -> Option:
