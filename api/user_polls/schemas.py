@@ -3,7 +3,7 @@ from datetime import datetime
 
 from pydantic import validator
 
-from api.polls.models import Poll, Option
+from api.polls.models import Poll
 from core.database import SessionLocal
 from core.schemas import CamelModel
 
