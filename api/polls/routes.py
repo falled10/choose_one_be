@@ -6,10 +6,10 @@ from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
 from api.polls.schemas import ResponsePollSchema, CreatePollSchema, PatchUpdatePollSchema, ListPollResponseSchema, \
-    OptionSchema, CreateOptionSchema, OptionUpdateSchema
+    OptionSchema, CreateOptionSchema, OptionUpdateSchema, SelectOptionSchema
 from api.polls.services import create_new_poll, update_poll, delete_poll, get_single_poll, \
     get_list_of_all_polls, get_list_of_my_polls, create_option, delete_option, update_option, list_of_options, \
-    poll_places_number, get_list_of_searched_polls
+    poll_places_number, get_list_of_searched_polls, send_selected_options_to_statistics
 from api.auth.dependencies import jwt_required, get_db
 from api.users.models import User
 from core.settings import MAX_PLACES_NUMBER
@@ -76,6 +76,11 @@ async def poll_places_number_route(poll_slug: str, db: Session = Depends(get_db)
 async def create_new_option_route(new_option: CreateOptionSchema, poll_slug: str, user: User = Depends(jwt_required),
                                   db: Session = Depends(get_db)):
     return create_option(poll_slug, user, new_option, db)
+
+
+@router.post("/{poll_slug}/options/select", status_code=status.HTTP_204_NO_CONTENT)
+async def select_options_route(options: List[SelectOptionSchema]):
+    return await send_selected_options_to_statistics(options)
 
 
 @router.delete("/{poll_slug}/options/{option_id}", status_code=status.HTTP_204_NO_CONTENT)

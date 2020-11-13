@@ -1,3 +1,5 @@
+from typing import List
+
 import httpx
 
 from sqlalchemy import text
@@ -5,7 +7,8 @@ from sqlalchemy.orm import Session, Query
 from slugify import slugify
 from paginate_sqlalchemy import SqlalchemyOrmPage
 
-from api.polls.schemas import CreatePollSchema, PatchUpdatePollSchema, CreateOptionSchema, OptionUpdateSchema
+from api.polls.schemas import CreatePollSchema, PatchUpdatePollSchema, CreateOptionSchema, OptionUpdateSchema, \
+    SelectOptionSchema
 from api.polls.models import Poll, Option
 from api.polls.validators import validate_unique_title, validate_is_owner, validate_existed_poll, \
     validate_existed_option, validate_places_number
@@ -141,3 +144,11 @@ def poll_places_number(poll_slug: str, db: Session):
     places_number = places_number if places_number % 2 == 0 else places_number - 1
     max_places = places_number if places_number < MAX_PLACES_NUMBER else MAX_PLACES_NUMBER
     return get_places_from(max_places)
+
+
+async def send_selected_options_to_statistics(options: List[SelectOptionSchema]):
+    data = [option.dict() for option in options]
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(f"{STATISTICS_SERVICE_URL}/api/statistics", data=data)
+        return resp
+
