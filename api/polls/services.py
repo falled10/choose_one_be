@@ -2,6 +2,7 @@ from typing import List
 
 import httpx
 
+from fastapi.responses import JSONResponse, Response
 from sqlalchemy import text
 from sqlalchemy.orm import Session, Query
 from slugify import slugify
@@ -146,9 +147,14 @@ def poll_places_number(poll_slug: str, db: Session):
     return get_places_from(max_places)
 
 
-async def send_selected_options_to_statistics(options: List[SelectOptionSchema]):
-    data = [option.dict() for option in options]
+async def send_selected_options_to_statistics(options: List[SelectOptionSchema],
+                                              poll_slug: str, db:Session):
+    poll = validate_existed_poll(db, poll_slug)
+    data = [{**option.dict(), 'poll_id': poll.id} for option in options]
     async with httpx.AsyncClient() as client:
-        resp = await client.post(f"{STATISTICS_SERVICE_URL}/api/statistics", data=data)
-        return resp
+        resp = await client.post(f"{STATISTICS_SERVICE_URL}/api/statistics", json={'data': data},
+                                 headers={'Content-Type': 'application/json'})
+        if resp.status_code == 400:
+            return JSONResponse(status_code=resp.status_code, content=resp.json())
+        return Response(status_code=204)
 

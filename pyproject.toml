@@ -32,6 +32,7 @@ paginate-sqlalchemy = "^0.3.1"
 typing-extensions = "^3.7.4"
 elasticsearch = "^7.9.1"
 httpx = "^0.16.1"
+autopep8 = "^1.5.4"
 
 [tool.poetry.dev-dependencies]
 

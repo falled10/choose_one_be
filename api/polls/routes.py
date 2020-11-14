@@ -79,8 +79,9 @@ async def create_new_option_route(new_option: CreateOptionSchema, poll_slug: str
 
 
 @router.post("/{poll_slug}/options/select", status_code=status.HTTP_204_NO_CONTENT)
-async def select_options_route(options: List[SelectOptionSchema]):
-    return await send_selected_options_to_statistics(options)
+async def select_options_route(poll_slug: str, options: List[SelectOptionSchema],
+                               db: Session = Depends(get_db)):
+    return await send_selected_options_to_statistics(options, poll_slug, db)
 
 
 @router.delete("/{poll_slug}/options/{option_id}", status_code=status.HTTP_204_NO_CONTENT)
