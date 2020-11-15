@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, Request, status, UploadFile, File
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from core.exceptions import CustomValidationError
 from core.settings import CORS_ORIGINS
 from core.search import es
+from core.utils import upload_file
 from api.auth.routes import router as auth_router
 from api.polls.routes import router as poll_router
 from api.profile.routes import router as profile_router
@@ -40,9 +41,10 @@ async def validation_custom_exception_handler(request: Request, exc: CustomValid
     )
 
 
-@app.get('/')
-async def main():
-    return {'message': 'Hello World!'}
+@app.post('/upload_file')
+async def upload_file_route(file: UploadFile = File(...)):
+    filename = upload_file(file)
+    return {'filename': filename}
 
 
 @app.on_event('shutdown')
