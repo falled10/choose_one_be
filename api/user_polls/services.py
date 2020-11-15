@@ -1,4 +1,3 @@
-import enum
 from sqlalchemy.orm import Session
 
 from api.user_polls.models import UserPoll, UserOption

@@ -299,7 +299,6 @@ def test_get_all_polls_non_existed_poll(client):
 
 def test_get_places_number_of_poll(client, full_poll):
     resp = client.get(f'api/polls/{full_poll.slug}/places-numbers')
-    print(resp.json())
     assert resp.status_code == 200
     assert resp.json() == [2]
 

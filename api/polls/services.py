@@ -148,13 +148,15 @@ def poll_places_number(poll_slug: str, db: Session):
 
 
 async def send_selected_options_to_statistics(options: List[SelectOptionSchema],
-                                              poll_slug: str, db:Session):
+                                              poll_slug: str, db: Session):
     poll = validate_existed_poll(db, poll_slug)
-    data = [{**option.dict(), 'poll_id': poll.id} for option in options]
+    data = []
+    for option in options:
+        validate_existed_option(db, option.option_id, poll)
+        data.append({**option.dict(), 'poll_id': poll.id})
     async with httpx.AsyncClient() as client:
         resp = await client.post(f"{STATISTICS_SERVICE_URL}/api/statistics", json={'data': data},
                                  headers={'Content-Type': 'application/json'})
         if resp.status_code == 400:
             return JSONResponse(status_code=resp.status_code, content=resp.json())
         return Response(status_code=204)
-

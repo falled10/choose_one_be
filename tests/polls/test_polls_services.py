@@ -1,13 +1,17 @@
+import httpx
+
+from unittest.mock import MagicMock
 import pytest
 from fastapi.exceptions import HTTPException
 from slugify import slugify
 from sqlalchemy import text
 
-from api.polls.services import create_new_poll, update_poll, delete_poll, get_single_poll, get_list_of_polls, \
-    get_list_of_all_polls, get_list_of_my_polls, create_option, get_places_from
+from api.polls.services import create_new_poll, send_selected_options_to_statistics, update_poll,\
+    delete_poll, get_single_poll, get_list_of_polls, get_list_of_all_polls, get_list_of_my_polls, \
+    create_option, get_places_from
 from api.polls.validators import validate_unique_title, validate_is_owner, validate_existed_poll
 from api.polls.models import Poll
-from api.polls.schemas import PatchUpdatePollSchema, CreatePollSchema, CreateOptionSchema
+from api.polls.schemas import PatchUpdatePollSchema, CreatePollSchema, CreateOptionSchema, SelectOptionSchema
 from core.exceptions import CustomValidationError
 
 
@@ -172,3 +176,31 @@ def test_create_new_option_for_not_mine_poll(user, poll, db):
 def test_get_places_number_from_64():
     places = get_places_from(64)
     assert [64, 32, 16, 8, 4, 2] == places
+
+
+@pytest.mark.asyncio
+async def test_send_statistics_request_to_service(full_poll, db, mocker):
+    async def async_magic():
+        pass
+
+    MagicMock.__await__ = lambda x: async_magic().__await__()
+    mocker.patch('httpx.AsyncClient.post')
+    options = full_poll.options
+    options = [SelectOptionSchema(option_id=option.id, event_type='WON') for option in options]
+    await send_selected_options_to_statistics(options, full_poll.slug, db)
+    httpx.AsyncClient.post.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_send_statistics_request_with_wrong_option(full_poll, option, db, mocker):
+    async def async_magic():
+        pass
+
+    MagicMock.__await__ = lambda x: async_magic().__await__()
+    mocker.patch('httpx.AsyncClient.post')
+    options = full_poll.options
+    options = [SelectOptionSchema(option_id=option.id, event_type='WON') for option in options]
+    options.append(SelectOptionSchema(option_id=option.id, event_type="TOOK_PART"))
+    with pytest.raises(HTTPException):
+        await send_selected_options_to_statistics(options, full_poll.slug, db)
+    httpx.AsyncClient.post.assert_not_called()
