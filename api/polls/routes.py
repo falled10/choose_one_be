@@ -99,5 +99,6 @@ async def update_option_route(option_data: OptionUpdateSchema, poll_slug: str, o
 
 
 @router.get('/{poll_slug}/options', response_model=List[OptionSchema])
-async def list_of_options_route(poll_slug: str, places_number: int = MAX_PLACES_NUMBER, db: Session = Depends(get_db)):
+async def list_of_options_route(poll_slug: str, places_number: int = MAX_PLACES_NUMBER,
+                                db: Session = Depends(get_db)):
     return list_of_options(poll_slug, db, places_number)
