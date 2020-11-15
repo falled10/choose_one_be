@@ -1,3 +1,4 @@
+import enum
 from sqlalchemy.orm import Session
 
 from api.user_polls.models import UserPoll, UserOption
@@ -13,9 +14,9 @@ def create_user_poll(data: UserPollSchema, user: User, db: Session) -> UserPoll:
         db.commit()
         db.refresh(user_poll)
         objects = []
-        for option in data.options:
+        for i, option in enumerate(data.options, 1):
             objects.append(UserOption(option_id=option.option_id,
-                                      place_number=option.place_number,
+                                      place_number=i,
                                       poll=user_poll))
         db.bulk_save_objects(objects)
         db.commit()

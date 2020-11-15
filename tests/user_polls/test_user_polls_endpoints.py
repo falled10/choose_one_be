@@ -5,8 +5,8 @@ def test_create_new_user_poll(client, full_poll, token_header, db):
     options = full_poll.options
     data = {
         'poll_id': full_poll.id,
-        'options': [{'option_id': option.id, 'place_number': i}
-                    for i, option in enumerate(options, 1)]
+        'options': [{'option_id': option.id}
+                    for option in options]
     }
     resp = client.post('api/user-polls', headers=token_header, json=data)
     assert resp.status_code == 201

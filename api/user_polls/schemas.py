@@ -10,7 +10,6 @@ from core.schemas import CamelModel
 
 class UserOptionSchema(CamelModel):
     option_id: int
-    place_number: int
 
 
 class UserPollSchema(CamelModel):
