@@ -32,7 +32,7 @@ def upload_file(file: UploadFile):
     if AWS_BUCKET_NAME:
         client = boto3.client('s3')
         client.upload_fileobj(file.file, AWS_BUCKET_NAME, filepath)
-        return S3_OBJECT_URL + filename
+        return S3_OBJECT_URL + filepath
     with open(filepath, 'wb') as buffer:
         shutil.copyfileobj(file.file, buffer)
     return filepath
