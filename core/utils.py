@@ -1,5 +1,4 @@
 import boto3
-import shutil
 import random
 import string
 

@@ -44,10 +44,10 @@ async def validation_custom_exception_handler(request: Request, exc: CustomValid
     )
 
 
-@app.post('/upload_file')
+@app.post('/upload_file', status_code=status.HTTP_201_CREATED)
 async def upload_file_route(file: UploadFile = File(...)):
     filename = upload_file(file)
-    return {'filename': filename}
+    return {'url': filename}
 
 
 @app.on_event('shutdown')
