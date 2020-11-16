@@ -1,5 +1,7 @@
 import boto3
 import shutil
+import random
+import string
 
 from fastapi import UploadFile
 from humps import camelize
@@ -13,12 +15,24 @@ def to_camel(string: str) -> str:
     return camelize(string)
 
 
+def generate_unique_filename(filename):
+    """Util for generate unique filename
+    by adding random ascii symbols to the end of `filename`
+    """
+    return f"{filename}_{''.join(random.choice(string.ascii_lowercase) for _ in range(6))}"
+
+
 def upload_file(file: UploadFile):
-    filepath = DEFAULT_MEDIA_FOLDER + file.filename
+    """Use this util for upload file
+    If you are using S3, please make sure that you have set `AWS_BUCKET_NAME`
+    after this util checks bucket name it will upload `file` to S3 bucket
+    """
+    filename = generate_unique_filename(file.filename)
+    filepath = DEFAULT_MEDIA_FOLDER + filename
     if AWS_BUCKET_NAME:
         client = boto3.client('s3')
         client.upload_fileobj(file.file, AWS_BUCKET_NAME, filepath)
-        return S3_OBJECT_URL + file.filename
+        return S3_OBJECT_URL + filename
     with open(filepath, 'wb') as buffer:
         shutil.copyfileobj(file.file, buffer)
-    return DEFAULT_MEDIA_FOLDER_URL + file.filename
+    return DEFAULT_MEDIA_FOLDER_URL + filename
