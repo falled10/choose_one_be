@@ -1,18 +1,22 @@
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, Request, status, UploadFile, File
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from core.exceptions import CustomValidationError
 from core.settings import CORS_ORIGINS
 from core.search import es
+from core.utils import upload_file
 from api.auth.routes import router as auth_router
 from api.polls.routes import router as poll_router
 from api.profile.routes import router as profile_router
 from api.user_polls.routes import router as user_polls_router
 
 app = FastAPI()
+
+app.mount("/media", StaticFiles(directory="media"), name="media")
 
 app.include_router(auth_router, prefix="/api/auth", tags=["Authorization"])
 app.include_router(poll_router, prefix="/api/polls", tags=["Polls"])
@@ -40,9 +44,10 @@ async def validation_custom_exception_handler(request: Request, exc: CustomValid
     )
 
 
-@app.get('/')
-async def main():
-    return {'message': 'Hello World!'}
+@app.post('/upload_file', status_code=status.HTTP_201_CREATED)
+async def upload_file_route(file: UploadFile = File(...)):
+    filename = upload_file(file)
+    return {'url': filename}
 
 
 @app.on_event('shutdown')

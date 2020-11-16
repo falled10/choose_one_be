@@ -1,8 +1,11 @@
 from environs import Env
+import os
 
 
 env = Env()
 env.read_env()
+
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 PROJECT_LOG_PATH = env.path('PROJECT_LOG_PATH', '.data/project.log')
@@ -41,4 +44,11 @@ CORS_ORIGINS = env.list('CORS_ORIGINS', ['*'])
 MIN_PLACES_NUMBER = env.int('MIN_PLACES_NUMBER', 8)
 MAX_PLACES_NUMBER = env.int('MAX_PLACES_NUMBER', 512)
 TEST_MODE = env.bool('TEST_MODE', False)
+AWS_BUCKET_NAME = env.str('AWS_BUCKET_NAME', '')
+AWS_BUCKET_REGION = env.str('AWS_BUCKET_REGION', '')
+AWS_SECRET_KEY = env.str('AWS_SECRET_KEY', '')
+AWS_PUBLIC_KEY = env.str('AWS_PUBLIC_KEY', '')
+DEFAULT_MEDIA_FOLDER = env.str('DEFAULT_MEDIA_FOLDER', 'media/')
+S3_OBJECT_URL = f'https://{AWS_BUCKET_NAME}.s3.{AWS_BUCKET_REGION}.amazonaws.com/'
 STATISTICS_SERVICE_URL = env.str('STATISTICS_SERVICE_URL', 'http://localhost:8001')
+IMAGE_MAX_WIDTH = 600
