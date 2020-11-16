@@ -6,8 +6,7 @@ import string
 from fastapi import UploadFile
 from humps import camelize
 
-from core.settings import AWS_BUCKET_NAME, DEFAULT_MEDIA_FOLDER, \
-    DEFAULT_MEDIA_FOLDER_URL, S3_OBJECT_URL
+from core.settings import AWS_BUCKET_NAME, DEFAULT_MEDIA_FOLDER, S3_OBJECT_URL
 
 
 def to_camel(string: str) -> str:
@@ -19,7 +18,8 @@ def generate_unique_filename(filename):
     """Util for generate unique filename
     by adding random ascii symbols to the end of `filename`
     """
-    return f"{filename}_{''.join(random.choice(string.ascii_lowercase) for _ in range(6))}"
+    filename, ext = filename.rsplit('.')
+    return f"{filename}_{''.join(random.choice(string.ascii_lowercase) for _ in range(6))}.{ext}"
 
 
 def upload_file(file: UploadFile):
@@ -35,4 +35,4 @@ def upload_file(file: UploadFile):
         return S3_OBJECT_URL + filename
     with open(filepath, 'wb') as buffer:
         shutil.copyfileobj(file.file, buffer)
-    return DEFAULT_MEDIA_FOLDER_URL + filename
+    return filepath

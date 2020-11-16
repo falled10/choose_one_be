@@ -3,6 +3,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from core.exceptions import CustomValidationError
 from core.settings import CORS_ORIGINS
@@ -14,6 +15,8 @@ from api.profile.routes import router as profile_router
 from api.user_polls.routes import router as user_polls_router
 
 app = FastAPI()
+
+app.mount("/media", StaticFiles(directory="media"), name="media")
 
 app.include_router(auth_router, prefix="/api/auth", tags=["Authorization"])
 app.include_router(poll_router, prefix="/api/polls", tags=["Polls"])

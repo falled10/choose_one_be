@@ -34,6 +34,7 @@ elasticsearch = "^7.9.1"
 autopep8 = "^1.5.4"
 boto3 = "^1.16.18"
 python-multipart = "^0.0.5"
+aiofiles = "^0.6.0"
 
 [tool.poetry.dev-dependencies]
 
