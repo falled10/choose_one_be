@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.12.0 - 16.11.2020
+
+### Added
+
+* S3 to project
+* Utils for resize and upload files
+
 ## v0.11.0 - 08.11.2020
 
 ### Added
