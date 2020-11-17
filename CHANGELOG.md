@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.12.2. - 17.11.2020
+
+### Added
+
+* Default version for postgres in docker compose file
+
 ## v0.12.1 - 17.11.2020
 
 ### Added
