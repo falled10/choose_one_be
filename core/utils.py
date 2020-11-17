@@ -9,7 +9,7 @@ from fastapi import UploadFile, HTTPException
 from humps import camelize
 
 from core.settings import AWS_BUCKET_NAME, DEFAULT_MEDIA_FOLDER, S3_OBJECT_URL, \
-    IMAGE_MAX_WIDTH
+    IMAGE_MAX_WIDTH, AWS_SECRET_KEY, AWS_PUBLIC_KEY
 
 
 def to_camel(string: str) -> str:
@@ -58,7 +58,8 @@ def upload_file(file: UploadFile):
     filepath = DEFAULT_MEDIA_FOLDER + filename
     file = bytes_from_image(resize_image(file.file))
     if AWS_BUCKET_NAME:
-        client = boto3.client('s3')
+        client = boto3.client('s3', aws_access_key_id=AWS_PUBLIC_KEY,
+                              aws_secret_access_key=AWS_SECRET_KEY)
         client.upload_fileobj(BytesIO(file), AWS_BUCKET_NAME, filepath)
         return S3_OBJECT_URL + filepath
     with open(filepath, 'wb') as buffer:

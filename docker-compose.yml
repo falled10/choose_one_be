@@ -37,7 +37,7 @@ services:
       - api
   db:
     container_name: db
-    image: postgres:latest
+    image: postgres:12
     env_file: .env
     volumes:
       - ./.data/postgres:/var/lib/postgresql/data
