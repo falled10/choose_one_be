@@ -178,17 +178,30 @@ def test_get_places_number_from_64():
     assert [64, 32, 16, 8, 4, 2] == places
 
 
+def test_get_places_number_from_80():
+    places = get_places_from(80)
+    assert [64, 32, 16, 8, 4, 2] == places
+
+
 @pytest.mark.asyncio
 async def test_send_statistics_request_to_service(full_poll, db, mocker):
+    class MockedResponse:
+        status_code = 400
+
+        @staticmethod
+        def json():
+            return {}
+
     async def async_magic():
-        pass
+        return MockedResponse
 
     MagicMock.__await__ = lambda x: async_magic().__await__()
     mocker.patch('httpx.AsyncClient.post')
     options = full_poll.options
     options = [SelectOptionSchema(option_id=option.id, event_type='WON') for option in options]
-    await send_selected_options_to_statistics(options, full_poll.slug, db)
+    resp = await send_selected_options_to_statistics(options, full_poll.slug, db)
     httpx.AsyncClient.post.assert_called_once()
+    assert resp.status_code == 400
 
 
 @pytest.mark.asyncio

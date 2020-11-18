@@ -14,7 +14,7 @@ from api.polls.models import Poll, Option
 from api.polls.validators import validate_unique_title, validate_is_owner, validate_existed_poll, \
     validate_existed_option, validate_places_number
 from api.users.models import User
-from core.settings import MAX_PLACES_NUMBER, MIN_PLACES_NUMBER, STATISTICS_SERVICE_URL
+from core.settings import MAX_PLACES_NUMBER, STATISTICS_SERVICE_URL
 
 
 def get_list_of_all_polls(db: Session, path: str, page_size: int, page: int) -> dict:
@@ -131,11 +131,11 @@ def get_places_from(from_num: int):
         result will be [64, 32, 16, 8]
     """
     result = []
-    place = from_num
-    while place >= MIN_PLACES_NUMBER:
-        result.append(place)
-        place //= 2
-    return result
+    first_number = 2
+    while first_number <= from_num:
+        result.append(first_number)
+        first_number *= 2
+    return list(reversed(result))
 
 
 def poll_places_number(poll_slug: str, db: Session):
