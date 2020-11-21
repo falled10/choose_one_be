@@ -1,14 +1,20 @@
+from typing import List
+
+import httpx
+
+from fastapi.responses import JSONResponse, Response
 from sqlalchemy import text
 from sqlalchemy.orm import Session, Query
 from slugify import slugify
 from paginate_sqlalchemy import SqlalchemyOrmPage
 
-from api.polls.schemas import CreatePollSchema, PatchUpdatePollSchema, CreateOptionSchema, OptionUpdateSchema
+from api.polls.schemas import CreatePollSchema, PatchUpdatePollSchema, CreateOptionSchema, OptionUpdateSchema, \
+    SelectOptionSchema
 from api.polls.models import Poll, Option
 from api.polls.validators import validate_unique_title, validate_is_owner, validate_existed_poll, \
     validate_existed_option, validate_places_number
 from api.users.models import User
-from core.settings import MAX_PLACES_NUMBER, MIN_PLACES_NUMBER
+from core.settings import MAX_PLACES_NUMBER, STATISTICS_SERVICE_URL
 
 
 def get_list_of_all_polls(db: Session, path: str, page_size: int, page: int) -> dict:
@@ -92,12 +98,14 @@ def create_option(poll_slug: str, creator: User, option: CreateOptionSchema, db:
     return option
 
 
-def delete_option(poll_slug: str, option_id: int, db: Session, creator: User):
+async def delete_option(poll_slug: str, option_id: int, db: Session, creator: User):
     poll = validate_existed_poll(db, poll_slug)
     validate_is_owner(poll, creator)
     option = validate_existed_option(db, option_id, poll)
     db.query(Option).filter_by(id=option.id).delete()
     db.commit()
+    async with httpx.AsyncClient() as client:
+        await client.delete(f"{STATISTICS_SERVICE_URL}/api/statistics/{option_id}")
 
 
 def update_option(data: OptionUpdateSchema, poll_slug: str, option_id: int, db: Session, creator: User) -> Option:
@@ -123,11 +131,11 @@ def get_places_from(from_num: int):
         result will be [64, 32, 16, 8]
     """
     result = []
-    place = from_num
-    while place >= MIN_PLACES_NUMBER:
-        result.append(place)
-        place //= 2
-    return result
+    first_number = 2
+    while first_number <= from_num:
+        result.append(first_number)
+        first_number *= 2
+    return list(reversed(result))
 
 
 def poll_places_number(poll_slug: str, db: Session):
@@ -137,3 +145,18 @@ def poll_places_number(poll_slug: str, db: Session):
     places_number = places_number if places_number % 2 == 0 else places_number - 1
     max_places = places_number if places_number < MAX_PLACES_NUMBER else MAX_PLACES_NUMBER
     return get_places_from(max_places)
+
+
+async def send_selected_options_to_statistics(options: List[SelectOptionSchema],
+                                              poll_slug: str, db: Session):
+    poll = validate_existed_poll(db, poll_slug)
+    data = []
+    for option in options:
+        validate_existed_option(db, option.option_id, poll)
+        data.append({**option.dict(), 'poll_id': poll.id})
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(f"{STATISTICS_SERVICE_URL}/api/statistics", json={'data': data},
+                                 headers={'Content-Type': 'application/json'})
+        if resp.status_code == 400:
+            return JSONResponse(status_code=resp.status_code, content=resp.json())
+        return Response(status_code=204)

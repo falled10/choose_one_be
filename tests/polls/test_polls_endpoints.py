@@ -1,4 +1,7 @@
+from unittest.mock import MagicMock
+
 from slugify import slugify
+from httpx import AsyncClient
 
 from api.polls.models import Poll, Option
 from api.polls.schemas import CreatePollSchema
@@ -213,10 +216,16 @@ def test_create_new_option_for_another_users_poll(poll, user, client, token_head
     assert resp.status_code == 403
 
 
-def test_delete_exited_option(poll, option, client, token_header, db):
+def test_delete_exited_option(poll, option, client, token_header, db, mocker):
+    async def async_magic():
+        pass
+
+    MagicMock.__await__ = lambda x: async_magic().__await__()
+    mocker.patch('httpx.AsyncClient.delete')
     resp = client.delete(f'api/polls/{poll.slug}/options/{option.id}', headers=token_header)
     assert resp.status_code == 204
     assert not db.query(Option).filter_by(id=option.id).first()
+    AsyncClient.delete.assert_called_once()
 
 
 def test_delete_non_exited_option(poll, client, token_header):
@@ -290,7 +299,6 @@ def test_get_all_polls_non_existed_poll(client):
 
 def test_get_places_number_of_poll(client, full_poll):
     resp = client.get(f'api/polls/{full_poll.slug}/places-numbers')
-    print(resp.json())
     assert resp.status_code == 200
     assert resp.json() == [2]
 

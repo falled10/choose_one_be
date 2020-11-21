@@ -1,17 +1,33 @@
+from unittest.mock import MagicMock
+
+import httpx
+
 from api.user_polls.models import UserOption
 
 
-def test_create_new_user_poll(client, full_poll, token_header, db):
+def test_create_new_user_poll(client, full_poll, token_header, db, mocker):
+    class MockedResponse:
+        status_code = 400
+
+        @staticmethod
+        def json():
+            return []
+
+    async def async_magic():
+        return MockedResponse
+
+    MagicMock.__await__ = lambda x: async_magic().__await__()
+    mocker.patch('httpx.AsyncClient.post', return_value=MockedResponse)
     options = full_poll.options
     data = {
         'poll_id': full_poll.id,
-        'options': [{'option_id': option.id, 'place_number': i}
-                    for i, option in enumerate(options, 1)]
+        'options': [{'option_id': option.id}
+                    for option in options]
     }
     resp = client.post('api/user-polls', headers=token_header, json=data)
     assert resp.status_code == 201
-    assert resp.json()['pollId'] == full_poll.id
-    assert db.query(UserOption).filter_by(poll_id=resp.json()['id']).count() == 2
+    assert db.query(UserOption).count() == 2
+    httpx.AsyncClient.post.assert_called_once()
 
 
 def test_create_new_user_poll_one_option_is_from_another_poll(client, full_poll,
@@ -40,14 +56,27 @@ def test_create_new_user_poll_poll_does_not_exists(client, full_poll, token_head
     assert resp.status_code == 400
 
 
-def test_create_new_user_poll_empty_options(client, full_poll, token_header, db):
+def test_create_new_user_poll_empty_options(client, full_poll, token_header, db, mocker):
+    class MockedResponse:
+        status_code = 400
+
+        @staticmethod
+        def json():
+            return []
+
+    async def async_magic():
+        return MockedResponse
+
+    MagicMock.__await__ = lambda x: async_magic().__await__()
+    mocker.patch('httpx.AsyncClient.post', return_value=MockedResponse)
     data = {
         'poll_id': full_poll.id,
         'options': []
     }
     resp = client.post('api/user-polls', headers=token_header, json=data)
     assert resp.status_code == 201
-    assert db.query(UserOption).filter_by(poll_id=resp.json()['id']).count() == 0
+    assert db.query(UserOption).count() == 0
+    httpx.AsyncClient.post.assert_called_once()
 
 
 def test_create_new_user_poll_some_option_does_not_exists(client, full_poll, token_header):
