@@ -12,6 +12,6 @@ done
 echo "PostgreSQL started"
 
 poetry run alembic upgrade head
-poetry run uvicorn --host 0.0.0.0 --port 8000 main:app --reload
+poetry run gunicorn main:app -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000 --workers=4 --log-level=info
 
 exec "$@"
