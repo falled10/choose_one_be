@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.16.0 - 21.11.2020
+
+### Added
+
+* Authentication for elasticsearch
+
 ## v0.15.0 - 21.11.2020
 
 ### Added
