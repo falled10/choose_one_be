@@ -1,5 +1,4 @@
 from typing import List
-from datetime import datetime
 
 from pydantic import validator
 
@@ -42,10 +41,7 @@ class UserPollSchema(CamelModel):
         return v
 
 
-class ResponseUserPollSchema(CamelModel):
-    id: int
-    poll_id: int
-    created_at: datetime
-
-    class Config:
-        orm_mode = True
+class CalculatedOptionSchema(CamelModel):
+    option_id: int
+    selected_percentage: int
+    win_percentage: int

@@ -196,7 +196,7 @@ async def test_send_statistics_request_to_service(full_poll, db, mocker):
         return MockedResponse
 
     MagicMock.__await__ = lambda x: async_magic().__await__()
-    mocker.patch('httpx.AsyncClient.post')
+    mocker.patch('httpx.AsyncClient.post', return_value=MockedResponse)
     options = full_poll.options
     options = [SelectOptionSchema(option_id=option.id, event_type='WON') for option in options]
     resp = await send_selected_options_to_statistics(options, full_poll.slug, db)
