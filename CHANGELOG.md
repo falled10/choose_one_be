@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.14.0 - 21.11.2020
+
+### Added
+
+ * Nginx config for project
+
 ## v0.13.0 - 21.11.2020
 
 ### Added
