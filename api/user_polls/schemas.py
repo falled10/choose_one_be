@@ -1,26 +1,14 @@
 from typing import List
-from datetime import datetime
 
 from pydantic import validator
 
-from api.polls.models import Poll, Option
+from api.polls.models import Poll
 from core.database import SessionLocal
 from core.schemas import CamelModel
 
 
 class UserOptionSchema(CamelModel):
     option_id: int
-    place_number: int
-
-    @validator("option_id")
-    def check_existed_option(cls, v):
-        try:
-            db = SessionLocal()
-            if not db.query(Option).get(v):
-                raise ValueError("Option does not exists with this id")
-        finally:
-            db.close()
-        return v
 
 
 class UserPollSchema(CamelModel):
@@ -53,10 +41,7 @@ class UserPollSchema(CamelModel):
         return v
 
 
-class ResponseUserPollSchema(CamelModel):
-    id: int
-    poll_id: int
-    created_at: datetime
-
-    class Config:
-        orm_mode = True
+class CalculatedOptionSchema(CamelModel):
+    option_id: int
+    selected_percentage: int
+    win_percentage: int

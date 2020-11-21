@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.13.0 - 21.11.2020
+
+### Added
+
+* Connection between statistics service and main app
+* New endpoints to send data to statistics service
+
 ## v0.12.2. - 17.11.2020
 
 ### Added

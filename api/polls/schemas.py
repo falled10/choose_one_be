@@ -2,7 +2,7 @@ from typing import Optional, List
 from typing_extensions import Literal
 from pydantic import validator
 
-from api.polls.models import Poll
+from api.polls.models import Poll, Option
 from core.database import SessionLocal
 from core.schemas import CamelModel
 
@@ -68,4 +68,19 @@ class OptionUpdateSchema(CamelModel):
     def non_none_label(cls, v):
         if v is None:
             raise ValueError("Label cannot be None")
+        return v
+
+
+class SelectOptionSchema(CamelModel):
+    option_id: int
+    event_type: str
+
+    @validator("option_id")
+    def check_existed_option(cls, v):
+        try:
+            db = SessionLocal()
+            if not db.query(Option).get(v):
+                raise ValueError("Option does not exists with this id")
+        finally:
+            db.close()
         return v

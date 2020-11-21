@@ -6,10 +6,10 @@ from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
 from api.polls.schemas import ResponsePollSchema, CreatePollSchema, PatchUpdatePollSchema, ListPollResponseSchema, \
-    OptionSchema, CreateOptionSchema, OptionUpdateSchema
+    OptionSchema, CreateOptionSchema, OptionUpdateSchema, SelectOptionSchema
 from api.polls.services import create_new_poll, update_poll, delete_poll, get_single_poll, \
     get_list_of_all_polls, get_list_of_my_polls, create_option, delete_option, update_option, list_of_options, \
-    poll_places_number, get_list_of_searched_polls
+    poll_places_number, get_list_of_searched_polls, send_selected_options_to_statistics
 from api.auth.dependencies import jwt_required, get_db
 from api.users.models import User
 from core.settings import MAX_PLACES_NUMBER
@@ -78,10 +78,16 @@ async def create_new_option_route(new_option: CreateOptionSchema, poll_slug: str
     return create_option(poll_slug, user, new_option, db)
 
 
+@router.post("/{poll_slug}/options/select", status_code=status.HTTP_204_NO_CONTENT)
+async def select_options_route(poll_slug: str, options: List[SelectOptionSchema],
+                               db: Session = Depends(get_db)):
+    return await send_selected_options_to_statistics(options, poll_slug, db)
+
+
 @router.delete("/{poll_slug}/options/{option_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_existed_poll_route(poll_slug: str, option_id: int, user: User = Depends(jwt_required),
                                     db: Session = Depends(get_db)):
-    delete_option(poll_slug, option_id, db, user)
+    await delete_option(poll_slug, option_id, db, user)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
@@ -93,5 +99,6 @@ async def update_option_route(option_data: OptionUpdateSchema, poll_slug: str, o
 
 
 @router.get('/{poll_slug}/options', response_model=List[OptionSchema])
-async def list_of_options_route(poll_slug: str, places_number: int = MAX_PLACES_NUMBER, db: Session = Depends(get_db)):
+async def list_of_options_route(poll_slug: str, places_number: int = MAX_PLACES_NUMBER,
+                                db: Session = Depends(get_db)):
     return list_of_options(poll_slug, db, places_number)
