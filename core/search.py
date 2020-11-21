@@ -1,9 +1,10 @@
 from elasticsearch import Elasticsearch
 
-from core.settings import ELASTICSEARCH_URL
+from core.settings import ELASTICSEARCH_URL, ELASTICSEARCH_PASSWORD, ELASTICSEARCH_USERNAME
 
 
-es = Elasticsearch(hosts=[ELASTICSEARCH_URL])
+es = Elasticsearch(hosts=[ELASTICSEARCH_URL],
+                   http_auth=(ELASTICSEARCH_USERNAME, ELASTICSEARCH_PASSWORD))
 
 
 def add_to_index(index, instance):
