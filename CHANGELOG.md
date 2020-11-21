@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.15.0 - 21.11.2020
+
+### Added
+
+* Docker compose file for production
+
 ## v0.14.0 - 21.11.2020
 
 ### Added

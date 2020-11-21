@@ -1,0 +1,66 @@
+version: "3"
+
+services:
+  api:
+    container_name: api
+    build:
+      context: .
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/usr/src/app
+    env_file: .env
+    depends_on:
+      - db
+      - redis
+  celery:
+    build: .
+    command: poetry run celery -A core worker -l INFO
+    env_file:
+      - .env
+    entrypoint: ""
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - redis
+      - api
+  celery_beat:
+    build: .
+    command: poetry run celery -A core beat -l INFO
+    env_file:
+      - .env
+    entrypoint: ""
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - redis
+      - api
+  db:
+    container_name: db
+    image: postgres:12
+    env_file: .env
+    volumes:
+      - ./.data/postgres:/var/lib/postgresql/data
+    ports:
+      - 5433:5432
+  redis:
+    container_name: redis
+    image: redis:latest
+    env_file: .env
+    ports:
+      - 6379:6379
+    volumes:
+      - ./.data/redis:/data
+  nginx:
+    image: nginx:latest
+    restart: always
+    ports:
+      - 80:80
+    env_file:
+      - .env
+    volumes:
+      - ./.conf/nginx:/etc/nginx/conf.d
+      - ./assets:/app/assets
+      - ./media:/app/media
+    depends_on:
+      - api
