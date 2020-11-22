@@ -24,12 +24,12 @@ async def create_user_poll(data: UserPollSchema, user: User, db: Session) -> Use
             if i == 1:
                 options_to_statistics.append({
                     'option_id': option.option_id,
-                    'poll_id': user_poll.id,
+                    'poll_id': data.poll_id,
                     'event_type': 'WON'
                 })
             options_to_statistics.append({
                 'option_id': option.option_id,
-                'poll_id': user_poll.id,
+                'poll_id': data.poll_id,
                 'event_type': 'TOOK_PART_IN_POLL'
             })
         db.bulk_insert_mappings(UserOption, objects)

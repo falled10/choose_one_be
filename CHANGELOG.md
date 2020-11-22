@@ -1,5 +1,12 @@
 # CHANGELOG
 
+
+## v0.16.1 - 22.11.2020
+
+### Changed
+
+* Poll id for endgame
+
 ## v0.16.0 - 21.11.2020
 
 ### Added
