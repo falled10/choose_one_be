@@ -1,6 +1,12 @@
 # CHANGELOG
 
 
+## V0.17.0 - 26.11.2020
+
+### Removed
+
+* DB and celery beat containers from docker-compose-prd.yml file
+
 ## v0.16.1 - 22.11.2020
 
 ### Changed

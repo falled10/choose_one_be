@@ -11,7 +11,6 @@ services:
       - .:/usr/src/app
     env_file: .env
     depends_on:
-      - db
       - redis
   celery:
     build: .
@@ -24,25 +23,6 @@ services:
     depends_on:
       - redis
       - api
-  celery_beat:
-    build: .
-    command: poetry run celery -A core beat -l INFO
-    env_file:
-      - .env
-    entrypoint: ""
-    volumes:
-      - .:/usr/src/app
-    depends_on:
-      - redis
-      - api
-  db:
-    container_name: db
-    image: postgres:12
-    env_file: .env
-    volumes:
-      - ./.data/postgres:/var/lib/postgresql/data
-    ports:
-      - 5433:5432
   redis:
     container_name: redis
     image: redis:latest
