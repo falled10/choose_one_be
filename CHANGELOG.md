@@ -1,7 +1,12 @@
 # CHANGELOG
 
+## v0.18.0 - 28.11.2020
 
-## V0.17.0 - 26.11.2020
+### Added
+
+* Connection to recommendation service
+
+## v0.17.0 - 26.11.2020
 
 ### Removed
 

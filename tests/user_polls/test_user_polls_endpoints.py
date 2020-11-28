@@ -3,6 +3,7 @@ from unittest.mock import MagicMock
 import httpx
 
 from api.user_polls.models import UserOption
+from core import celery_app
 
 
 def test_create_new_user_poll(client, full_poll, token_header, db, mocker):
@@ -18,6 +19,7 @@ def test_create_new_user_poll(client, full_poll, token_header, db, mocker):
 
     MagicMock.__await__ = lambda x: async_magic().__await__()
     mocker.patch('httpx.AsyncClient.post', return_value=MockedResponse)
+    mocker.patch('core.celery_app.send_task', return_value=MockedResponse)
     options = full_poll.options
     data = {
         'poll_id': full_poll.id,
@@ -28,6 +30,7 @@ def test_create_new_user_poll(client, full_poll, token_header, db, mocker):
     assert resp.status_code == 201
     assert db.query(UserOption).count() == 2
     httpx.AsyncClient.post.assert_called_once()
+    celery_app.send_task.assert_called_once()
 
 
 def test_create_new_user_poll_one_option_is_from_another_poll(client, full_poll,
@@ -69,6 +72,7 @@ def test_create_new_user_poll_empty_options(client, full_poll, token_header, db,
 
     MagicMock.__await__ = lambda x: async_magic().__await__()
     mocker.patch('httpx.AsyncClient.post', return_value=MockedResponse)
+    mocker.patch('core.celery_app.send_task', return_value=MockedResponse)
     data = {
         'poll_id': full_poll.id,
         'options': []
@@ -77,6 +81,7 @@ def test_create_new_user_poll_empty_options(client, full_poll, token_header, db,
     assert resp.status_code == 201
     assert db.query(UserOption).count() == 0
     httpx.AsyncClient.post.assert_called_once()
+    celery_app.send_task.assert_called_once()
 
 
 def test_create_new_user_poll_some_option_does_not_exists(client, full_poll, token_header):
