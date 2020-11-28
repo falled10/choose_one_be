@@ -5,7 +5,8 @@ from sqlalchemy.orm import Session
 from api.user_polls.models import UserPoll, UserOption
 from api.user_polls.schemas import UserPollSchema
 from api.users.models import User
-from core.settings import STATISTICS_SERVICE_URL, CREATE_RECOMMENDATION_TASK_NAME
+from core.settings import STATISTICS_SERVICE_URL, CREATE_RECOMMENDATION_TASK_NAME, \
+    CELERY_TASK_DEFAULT_QUEUE
 from core import celery_app as celery
 
 
@@ -46,7 +47,7 @@ async def create_user_poll(data: UserPollSchema, user: User, db: Session) -> Use
                 'image': poll.image,
                 'description': poll.description
             }
-        })
+        }, queue=CELERY_TASK_DEFAULT_QUEUE)
         async with httpx.AsyncClient() as client:
             resp = await client.post(f"{STATISTICS_SERVICE_URL}/api/statistics",
                                      json={'data': options_to_statistics},
