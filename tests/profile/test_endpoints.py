@@ -75,11 +75,11 @@ def test_get_user_recommendations(client, token_header, mocker):
 
     MagicMock.__await__ = lambda x: async_magic().__await__()
     mocker.patch('httpx.AsyncClient.get', return_value=MockedResponse)
-    resp = client.get(f'api/profile/my-recommendations', headers=token_header)
+    resp = client.get('api/profile/my-recommendations', headers=token_header)
     assert resp.status_code == 200
     httpx.AsyncClient.get.assert_called_once()
 
 
 def test_get_user_recommendations_as_anon_user(client):
-    resp = client.get(f'api/profile/my-recommendations')
+    resp = client.get('api/profile/my-recommendations')
     assert resp.status_code == 401

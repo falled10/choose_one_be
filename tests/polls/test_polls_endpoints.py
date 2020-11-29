@@ -326,6 +326,6 @@ def test_get_statistics_as_unauthorized_user(client, full_poll, token_header, db
     }
     MagicMock.__await__ = lambda x: async_magic().__await__()
     mocker.patch('httpx.AsyncClient.post', return_value=MockedResponse)
-    resp = client.post(f'api/polls/statistics', headers=token_header, json=data)
+    resp = client.post('api/polls/statistics', headers=token_header, json=data)
     assert resp.status_code == 200
     AsyncClient.post.assert_called_once()

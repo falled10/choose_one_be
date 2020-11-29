@@ -114,6 +114,6 @@ def test_create_user_poll_as_anon(client, full_poll, token_header, db, mocker):
     }
     MagicMock.__await__ = lambda x: async_magic().__await__()
     mocker.patch('httpx.AsyncClient.post', return_value=MockedResponse)
-    resp = client.post(f'api/user-polls/anonymous', headers=token_header, json=data)
+    resp = client.post('api/user-polls/anonymous', headers=token_header, json=data)
     assert resp.status_code == 201
     httpx.AsyncClient.post.assert_called_once()
