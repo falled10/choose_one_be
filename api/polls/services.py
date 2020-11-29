@@ -164,9 +164,10 @@ async def send_selected_options_to_statistics(options: List[SelectOptionSchema],
 
 
 async def get_statistics(options: UserPollSchema):
-    data = {'option_ids': [option.option_id for option in options.options]}
+    data = {'options_ids': [option.option_id for option in options.options]}
     async with httpx.AsyncClient() as client:
         resp = await client.post(f"{STATISTICS_SERVICE_URL}/api/statistics/options",
                                  json=data,
                                  headers={'Content-Type': 'application/json'})
+    print(resp.json())
     return resp.json()
