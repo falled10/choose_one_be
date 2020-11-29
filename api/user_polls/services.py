@@ -6,7 +6,7 @@ from api.user_polls.models import UserPoll, UserOption
 from api.user_polls.schemas import UserPollSchema
 from api.users.models import User
 from core.settings import STATISTICS_SERVICE_URL, CREATE_RECOMMENDATION_TASK_NAME, \
-    CELERY_TASK_DEFAULT_QUEUE
+    RECOMMENDATION_SERVICE_QUEUE
 from core import celery_app as celery
 
 
@@ -57,7 +57,7 @@ async def create_user_poll(data: UserPollSchema, user: User, db: Session) -> Use
                 'image': poll.image,
                 'description': poll.description
             }
-        }, queue=CELERY_TASK_DEFAULT_QUEUE)
+        }, queue=RECOMMENDATION_SERVICE_QUEUE)
         return await send_statistics_to_service(options_to_statistics)
     except Exception:
         transaction.rollback()
