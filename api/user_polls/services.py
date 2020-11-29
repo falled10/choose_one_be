@@ -10,6 +10,14 @@ from core.settings import STATISTICS_SERVICE_URL, CREATE_RECOMMENDATION_TASK_NAM
 from core import celery_app as celery
 
 
+async def send_statistics_to_service(options):
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(f"{STATISTICS_SERVICE_URL}/api/statistics",
+                                 json={'data': options},
+                                 headers={'Content-Type': 'application/json'})
+    return resp.json()
+
+
 async def create_user_poll(data: UserPollSchema, user: User, db: Session) -> UserPoll:
     transaction = db.begin(subtransactions=True)
     try:
@@ -48,10 +56,6 @@ async def create_user_poll(data: UserPollSchema, user: User, db: Session) -> Use
                 'description': poll.description
             }
         }, queue=CELERY_TASK_DEFAULT_QUEUE)
-        async with httpx.AsyncClient() as client:
-            resp = await client.post(f"{STATISTICS_SERVICE_URL}/api/statistics",
-                                     json={'data': options_to_statistics},
-                                     headers={'Content-Type': 'application/json'})
-        return resp.json()
+        return await send_statistics_to_service(options_to_statistics)
     except Exception:
         transaction.rollback()
