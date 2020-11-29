@@ -1,9 +1,13 @@
+from typing import List
+
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
 from api.auth.dependencies import jwt_required, get_db
+from api.polls.schemas import ResponsePollSchema
 from api.profile.schemas import ForgetPasswordSchema, ResetPasswordSchema
+from api.profile.services import get_user_recommendations
 from api.profile.validators import validate_forget_password_token
 from api.users.models import User
 from api.users.schemas import UserSchema
@@ -34,3 +38,8 @@ async def reset_password_route(reset_password: ResetPasswordSchema,
     user = validate_forget_password_token(reset_password.token, db)
     reset_password.change_password(user, reset_password.new_password, db)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.get('/my-recommendations', response_model=List[ResponsePollSchema])
+async def get_user_recommendations_route(user: User = Depends(jwt_required)):
+    return await get_user_recommendations(user.id)
