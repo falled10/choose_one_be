@@ -1,3 +1,6 @@
+from unittest.mock import MagicMock
+
+import httpx
 from werkzeug.security import check_password_hash
 
 from api.auth.utils import generate_token
@@ -58,3 +61,25 @@ def test_reset_password_passwords_does_not_match(user, client, db):
     }
     resp = client.post('api/profile/password/reset', json=data)
     assert resp.status_code == 400
+
+
+def test_get_user_recommendations(client, token_header, mocker):
+    class MockedResponse:
+
+        @staticmethod
+        def json():
+            return []
+
+    async def async_magic():
+        return MockedResponse
+
+    MagicMock.__await__ = lambda x: async_magic().__await__()
+    mocker.patch('httpx.AsyncClient.get', return_value=MockedResponse)
+    resp = client.get(f'api/profile/my-recommendations', headers=token_header)
+    assert resp.status_code == 200
+    httpx.AsyncClient.get.assert_called_once()
+
+
+def test_get_user_recommendations_as_anon_user(client):
+    resp = client.get(f'api/profile/my-recommendations')
+    assert resp.status_code == 401

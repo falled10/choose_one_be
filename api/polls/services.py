@@ -169,5 +169,4 @@ async def get_statistics(options: UserPollSchema):
         resp = await client.post(f"{STATISTICS_SERVICE_URL}/api/statistics/options",
                                  json=data,
                                  headers={'Content-Type': 'application/json'})
-    print(resp.json())
     return resp.json()
