@@ -50,8 +50,10 @@ async def create_user_poll(data: UserPollSchema, user: User, db: Session) -> Use
                 'user_id': user.id
             },
             'poll_data': {
-                'poll_id': poll.id,
+                'id': poll.id,
                 'title': poll.title,
+                'media_type': poll.media_type,
+                'slug': poll.slug,
                 'image': poll.image,
                 'description': poll.description
             }
