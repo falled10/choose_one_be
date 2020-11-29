@@ -13,6 +13,7 @@ from api.polls.schemas import CreatePollSchema, PatchUpdatePollSchema, CreateOpt
 from api.polls.models import Poll, Option
 from api.polls.validators import validate_unique_title, validate_is_owner, validate_existed_poll, \
     validate_existed_option, validate_places_number
+from api.user_polls.schemas import UserPollSchema
 from api.users.models import User
 from core.settings import MAX_PLACES_NUMBER, STATISTICS_SERVICE_URL
 
@@ -160,3 +161,12 @@ async def send_selected_options_to_statistics(options: List[SelectOptionSchema],
         if resp.status_code == 400:
             return JSONResponse(status_code=resp.status_code, content=resp.json())
         return Response(status_code=204)
+
+
+async def get_statistics(options: UserPollSchema):
+    data = {'option_ids': [option.option_id for option in options.options]}
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(f"{STATISTICS_SERVICE_URL}/api/statistics/options",
+                                 json=data,
+                                 headers={'Content-Type': 'application/json'})
+    return resp.json()
