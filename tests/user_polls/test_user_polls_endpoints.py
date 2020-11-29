@@ -94,3 +94,26 @@ def test_create_new_user_poll_some_option_does_not_exists(client, full_poll, tok
     data['options'][0]['option_id'] = 123
     resp = client.post('api/user-polls', headers=token_header, json=data)
     assert resp.status_code == 400
+
+
+def test_create_user_poll_as_anon(client, full_poll, token_header, db, mocker):
+    class MockedResponse:
+
+        @staticmethod
+        def json():
+            return []
+
+    async def async_magic():
+        return MockedResponse
+
+    options = full_poll.options
+    data = {
+        'poll_id': full_poll.id,
+        'options': [{'option_id': option.id}
+                    for option in options]
+    }
+    MagicMock.__await__ = lambda x: async_magic().__await__()
+    mocker.patch('httpx.AsyncClient.post', return_value=MockedResponse)
+    resp = client.post('api/user-polls/anonymous', headers=token_header, json=data)
+    assert resp.status_code == 201
+    httpx.AsyncClient.post.assert_called_once()

@@ -9,8 +9,9 @@ from api.polls.schemas import ResponsePollSchema, CreatePollSchema, PatchUpdateP
     OptionSchema, CreateOptionSchema, OptionUpdateSchema, SelectOptionSchema
 from api.polls.services import create_new_poll, update_poll, delete_poll, get_single_poll, \
     get_list_of_all_polls, get_list_of_my_polls, create_option, delete_option, update_option, list_of_options, \
-    poll_places_number, get_list_of_searched_polls, send_selected_options_to_statistics
+    poll_places_number, get_list_of_searched_polls, send_selected_options_to_statistics, get_statistics
 from api.auth.dependencies import jwt_required, get_db
+from api.user_polls.schemas import CalculatedOptionSchema, UserPollSchema
 from api.users.models import User
 from core.settings import MAX_PLACES_NUMBER
 
@@ -65,6 +66,11 @@ async def list_of_poll_route(request: Request, page: int = 1,
     """Get paginated list of polls
     """
     return get_list_of_all_polls(db, request.url.path, page_size, page)
+
+
+@router.post('/statistics', response_model=List[CalculatedOptionSchema])
+async def get_statistics_for_poll(options: UserPollSchema):
+    return await get_statistics(options)
 
 
 @router.get('/{poll_slug}/places-numbers', response_model=List[int])
