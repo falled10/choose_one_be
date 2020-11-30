@@ -26,7 +26,7 @@ class UserOption(Base):
     id = Column(Integer, primary_key=True)
     place_number = Column(Integer)
     poll_id = Column(Integer, ForeignKey(UserPoll.id, ondelete='CASCADE'))
-    option_id = Column(Integer, ForeignKey(Option.id))
+    option_id = Column(Integer, ForeignKey(Option.id, ondelete='CASCADE'))
 
     poll = relationship(UserPoll, foreign_keys="UserOption.poll_id", back_populates="user_options")
     option = relationship(Option, foreign_keys="UserOption.option_id", back_populates="user_options")
