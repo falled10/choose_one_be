@@ -5,7 +5,17 @@ from sqlalchemy.orm import Session
 from api.user_polls.models import UserPoll, UserOption
 from api.user_polls.schemas import UserPollSchema
 from api.users.models import User
-from core.settings import STATISTICS_SERVICE_URL
+from core.settings import STATISTICS_SERVICE_URL, CREATE_RECOMMENDATION_TASK_NAME, \
+    RECOMMENDATION_SERVICE_QUEUE
+from core import celery_app as celery
+
+
+async def send_statistics_to_service(options):
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(f"{STATISTICS_SERVICE_URL}/api/statistics",
+                                 json={'data': options},
+                                 headers={'Content-Type': 'application/json'})
+    return resp.json()
 
 
 async def create_user_poll(data: UserPollSchema, user: User, db: Session) -> UserPoll:
@@ -34,10 +44,20 @@ async def create_user_poll(data: UserPollSchema, user: User, db: Session) -> Use
             })
         db.bulk_insert_mappings(UserOption, objects)
         db.commit()
-        async with httpx.AsyncClient() as client:
-            resp = await client.post(f"{STATISTICS_SERVICE_URL}/api/statistics",
-                                     json={'data': options_to_statistics},
-                                     headers={'Content-Type': 'application/json'})
-        return resp.json()
+        poll = user_poll.poll
+        celery.send_task(CREATE_RECOMMENDATION_TASK_NAME, kwargs={
+            'user_data': {
+                'user_id': user.id
+            },
+            'poll_data': {
+                'id': poll.id,
+                'title': poll.title,
+                'media_type': poll.media_type,
+                'slug': poll.slug,
+                'image': poll.image,
+                'description': poll.description
+            }
+        }, queue=RECOMMENDATION_SERVICE_QUEUE)
+        return await send_statistics_to_service(options_to_statistics)
     except Exception:
         transaction.rollback()

@@ -1,7 +1,19 @@
 # CHANGELOG
 
+## v0.19.0 - 29.11.2020
 
-## V0.17.0 - 26.11.2020
+### Added
+
+* Statistics data for anonymous users
+* Recommendations service connection
+
+## v0.18.0 - 28.11.2020
+
+### Added
+
+* Connection to recommendation service
+
+## v0.17.0 - 26.11.2020
 
 ### Removed
 
