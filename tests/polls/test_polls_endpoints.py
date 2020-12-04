@@ -139,11 +139,17 @@ def test_get_non_existed_poll(client):
     assert resp.status_code == 404
 
 
-def test_get_list_of_polls(poll, client):
+def test_get_list_of_polls(full_poll, client):
     resp = client.get('api/polls')
     assert resp.status_code == 200
     assert resp.json()['count'] == 1
-    assert resp.json()['results'][0]['id'] == poll.id
+    assert resp.json()['results'][0]['id'] == full_poll.id
+
+
+def test_get_list_of_polls_without_options(poll, client):
+    resp = client.get('api/polls')
+    assert resp.status_code == 200
+    assert resp.json()['count'] == 0
 
 
 def test_get_list_of_polls_without_poll(client):

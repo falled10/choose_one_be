@@ -3,7 +3,7 @@ from typing import List
 import httpx
 
 from fastapi.responses import JSONResponse, Response
-from sqlalchemy import text
+from sqlalchemy import text, func
 from sqlalchemy.orm import Session, Query
 from slugify import slugify
 from paginate_sqlalchemy import SqlalchemyOrmPage
@@ -15,11 +15,15 @@ from api.polls.validators import validate_unique_title, validate_is_owner, valid
     validate_existed_option, validate_places_number
 from api.user_polls.schemas import UserPollSchema
 from api.users.models import User
-from core.settings import MAX_PLACES_NUMBER, STATISTICS_SERVICE_URL
+from core.settings import MAX_PLACES_NUMBER, STATISTICS_SERVICE_URL, MIN_PLACES_NUMBER
 
 
 def get_list_of_all_polls(db: Session, path: str, page_size: int, page: int) -> dict:
-    query = db.query(Poll).order_by(text('-id'))
+    query = db.query(Poll)\
+        .outerjoin(Poll.options)\
+        .group_by(Poll)\
+        .having(func.count_(Poll.options) >= MIN_PLACES_NUMBER)\
+        .order_by(Poll.id.desc())
     return get_list_of_polls(path, page_size, page, query)
 
 

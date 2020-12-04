@@ -10,7 +10,7 @@ from api.polls.services import create_new_poll, send_selected_options_to_statist
     delete_poll, get_single_poll, get_list_of_polls, get_list_of_all_polls, get_list_of_my_polls, \
     create_option, get_places_from
 from api.polls.validators import validate_unique_title, validate_is_owner, validate_existed_poll
-from api.polls.models import Poll
+from api.polls.models import Option, Poll
 from api.polls.schemas import PatchUpdatePollSchema, CreatePollSchema, CreateOptionSchema, SelectOptionSchema
 from core.exceptions import CustomValidationError
 
@@ -132,11 +132,15 @@ def test_get_list_of_polls_has_next_page(poll, active_user, db):
     assert data['next_page']
 
 
-def test_get_list_of_all_polls(poll, active_user, db):
+def test_get_list_of_all_polls(full_poll, active_user, db):
     title = 'some other poll'
     other_poll = Poll(title=title, description="Something about test poll", slug=slugify(title),
                       creator=active_user)
     db.add(other_poll)
+    option = Option(label='test option', poll=other_poll)
+    option2 = Option(label='test option', poll=other_poll)
+    db.add(option)
+    db.add(option2)
     db.commit()
     data = get_list_of_all_polls(db, '/api/polls', 2, 1)
     assert data['count'] == 2
